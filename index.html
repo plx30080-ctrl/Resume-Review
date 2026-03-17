@@ -624,6 +624,7 @@
     .result-sections { grid-template-columns: 1fr; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -799,6 +800,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 // ============================================================
 //  STATE
 // ============================================================
@@ -951,19 +954,26 @@ function renderBatchList() {
 }
 
 async function processFile(file) {
-  // For .txt files, read directly. For others, extract what we can from text.
+  if (file.name.toLowerCase().endsWith('.pdf')) {
+    return extractPdfText(file);
+  }
   return new Promise((resolve) => {
     const reader = new FileReader();
-    if (file.name.endsWith('.txt')) {
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsText(file);
-    } else {
-      // For PDF/DOC, read as text — works for text-based PDFs. Binary will be garbled but GPT-4o handles it reasonably.
-      // For best results, users should upload .txt exports of resumes.
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsText(file);
-    }
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsText(file);
   });
+}
+
+async function extractPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pageTexts = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    pageTexts.push(textContent.items.map(item => item.str).join(' '));
+  }
+  return pageTexts.join('\n');
 }
 
 // ============================================================
@@ -1026,21 +1036,31 @@ async function runAnalysis() {
 }
 
 async function callProxy(jobDescription, positionNotes, resumeText, candidateName) {
-  const response = await fetch(config.url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-functions-key': config.key,
-    },
-    body: JSON.stringify({ jobDescription, positionNotes, resumeText, candidateName }),
-  });
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(config.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-functions-key': config.key,
+      },
+      body: JSON.stringify({ jobDescription, positionNotes, resumeText, candidateName }),
+    });
 
-  if (!response.ok) {
-    const errBody = await response.text();
-    throw new Error(`Server error ${response.status}: ${errBody}`);
+    if (response.status === 429) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 3000));
+        continue;
+      }
+      throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
+    }
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Server error ${response.status}: ${errBody}`);
+    }
+
+    return await response.json();
   }
-
-  return await response.json();
 }
 
 // ============================================================
