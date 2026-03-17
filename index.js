@@ -89,13 +89,26 @@ Evaluate this candidate against the job description and provide your JSON assess
   try {
     const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
 
-    const response = await client.getChatCompletions(deploymentName, [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ], {
-      maxTokens: 1000,
-      temperature: 0.2,
-    });
+    let response;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await client.getChatCompletions(deploymentName, [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ], {
+          maxTokens: 1000,
+          temperature: 0.2,
+        });
+        break;
+      } catch (err) {
+        const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
+        if (isRateLimit && attempt < 3) {
+          await new Promise(r => setTimeout(r, attempt * 2000));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     const raw = response.choices[0]?.message?.content || "";
 
@@ -103,7 +116,6 @@ Evaluate this candidate against the job description and provide your JSON assess
     try {
       result = JSON.parse(raw);
     } catch {
-      // If JSON parse fails, return the raw text in an error wrapper
       context.res.status = 500;
       context.res.body = JSON.stringify({
         error: "AI returned unexpected format",
@@ -115,10 +127,18 @@ Evaluate this candidate against the job description and provide your JSON assess
     context.res.status = 200;
     context.res.body = JSON.stringify(result);
   } catch (err) {
-    context.log.error("Azure OpenAI error:", err.message);
-    context.res.status = 500;
-    context.res.body = JSON.stringify({
-      error: "Failed to contact Azure OpenAI: " + err.message,
-    });
+    const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
+    if (isRateLimit) {
+      context.res.status = 429;
+      context.res.body = JSON.stringify({
+        error: "Azure OpenAI rate limit exceeded. Please wait a moment and try again.",
+      });
+    } else {
+      context.log.error("Azure OpenAI error:", err.message);
+      context.res.status = 500;
+      context.res.body = JSON.stringify({
+        error: "Failed to contact Azure OpenAI: " + err.message,
+      });
+    }
   }
 };
