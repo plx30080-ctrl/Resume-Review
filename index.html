@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Review Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f12;
+    --surface: #13161b;
+    --surface2: #1a1e25;
+    --surface3: #21262f;
+    --border: #2a303c;
+    --border-light: #353d4a;
+    --text: #e8ecf0;
+    --text-muted: #7a8694;
+    --text-dim: #3d4858;
+    --accent: #4f9cf9;
+    --accent-dim: rgba(79,156,249,0.10);
+    --viable: #22c55e;
+    --viable-dim: rgba(34,197,94,0.08);
+    --viable-border: rgba(34,197,94,0.25);
+    --review: #f59e0b;
+    --review-dim: rgba(245,158,11,0.08);
+    --review-border: rgba(245,158,11,0.25);
+    --reject: #ef4444;
+    --reject-dim: rgba(239,68,68,0.08);
+    --reject-border: rgba(239,68,68,0.25);
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --radius: 8px;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ---- APP SHELL ---- */
+  .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 16px;
+    gap: 20px;
+  }
+  .logo {
+    padding: 4px 8px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-eyebrow {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .logo-name {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 10px;
+    margin: 10px 0 4px;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background 0.12s, color 0.12s;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: var(--accent-dim); color: var(--accent); }
+  .nav-btn .ni { width: 15px; text-align: center; font-size: 13px; }
+  .nav-count {
+    margin-left: auto;
+    background: var(--surface3);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .nav-count.has-results { background: var(--accent-dim); color: var(--accent); }
+
+  .config-box {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .config-box.connected { border-color: rgba(34,197,94,0.3); }
+  .config-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  .config-head-title {
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); }
+  .status-dot.ok { background: var(--viable); }
+  .config-toggle { color: var(--text-dim); font-size: 10px; }
+  .config-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .config-body.hidden { display: none; }
+  .cf { display: flex; flex-direction: column; gap: 3px; }
+  .cf-label { font-size: 9px; letter-spacing: 0.06em; color: var(--text-dim); }
+  .cf input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    width: 100%;
+    transition: border-color 0.12s;
+  }
+  .cf input:focus { outline: none; border-color: var(--accent); }
+  .btn-save {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.12s;
+  }
+  .btn-save:hover { opacity: 0.82; }
+  .config-saved {
+    font-size: 10px;
+    color: var(--viable);
+    text-align: center;
+    display: none;
+  }
+
+  /* ---- MAIN ---- */
+  .main { overflow: hidden; display: flex; flex-direction: column; }
+  .panel { display: none; flex-direction: column; flex: 1; padding: 36px 40px; gap: 22px; overflow-y: auto; }
+  .panel.active { display: flex; }
+
+  .panel-header { display: flex; flex-direction: column; gap: 5px; margin-bottom: 4px; }
+  .panel-title { font-family: var(--font-head); font-size: 26px; font-weight: 800; color: var(--text); }
+  .panel-sub { color: var(--text-muted); font-size: 12px; }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--text-dim);
+    background: var(--surface3);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  .card-body { padding: 18px; }
+
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    resize: vertical;
+    transition: border-color 0.12s;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-dim); }
+
+  /* ---- MODE TOGGLE ---- */
+  .mode-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .mode-toggle {
+    display: flex;
+    gap: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px;
+  }
+  .mode-btn {
+    padding: 5px 14px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .mode-btn.active { background: var(--surface3); color: var(--text); }
+  .mode-hint { font-size: 11px; color: var(--text-dim); }
+
+  /* ---- FILE DROP ---- */
+  .file-drop {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 26px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .file-drop:hover, .file-drop.dragover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .file-drop input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .drop-icon { font-size: 22px; margin-bottom: 6px; }
+  .drop-text { color: var(--text-muted); font-size: 12px; }
+  .drop-text strong { color: var(--accent); }
+  .drop-hint { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+  .file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+  }
+  .file-icon { font-size: 14px; flex-shrink: 0; }
+  .file-name { flex: 1; font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-size { font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+  .file-remove {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 13px; padding: 2px 4px;
+    border-radius: 3px; transition: color 0.12s; flex-shrink: 0;
+  }
+  .file-remove:hover { color: var(--reject); }
+
+  /* ---- SUBMIT ROW ---- */
+  .submit-row { display: flex; align-items: center; gap: 14px; }
+  .btn-analyze {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 24px;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.12s, transform 0.12s;
+    letter-spacing: 0.03em;
+  }
+  .btn-analyze:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+  .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-clear {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .btn-clear:hover { border-color: var(--border-light); color: var(--text); }
+  .status-msg { font-size: 11px; color: var(--text-dim); flex: 1; }
+  .status-msg.error { color: var(--reject); }
+  .status-msg.running { color: var(--accent); }
+
+  /* ---- PROGRESS BAR ---- */
+  .progress-wrap { display: none; flex-direction: column; gap: 6px; }
+  .progress-wrap.visible { display: flex; }
+  .progress-label { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+  .progress-bar-bg {
+    height: 3px;
+    background: var(--surface3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* ---- RESULTS ---- */
+  .results-grid { display: flex; flex-direction: column; gap: 14px; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .result-card.viable { border-color: var(--viable-border); }
+  .result-card.review { border-color: var(--review-border); }
+  .result-card.reject { border-color: var(--reject-border); }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .result-header:hover { background: var(--surface2); }
+
+  .result-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+
+  .verdict-badge {
+    font-family: var(--font-head);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .verdict-badge.viable { background: var(--viable-dim); color: var(--viable); border: 1px solid var(--viable-border); }
+  .verdict-badge.review { background: var(--review-dim); color: var(--review); border: 1px solid var(--review-border); }
+  .verdict-badge.reject { background: var(--reject-dim); color: var(--reject); border: 1px solid var(--reject-border); }
+
+  .result-name {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .result-summary {
+    font-size: 11px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .result-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+  .fit-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .fit-score-num {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .fit-score-num.viable { color: var(--viable); }
+  .fit-score-num.review { color: var(--review); }
+  .fit-score-num.reject { color: var(--reject); }
+  .fit-score-label { font-size: 8px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .confidence-tag {
+    font-size: 9px;
+    color: var(--text-dim);
+    background: var(--surface3);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .chevron { color: var(--text-dim); font-size: 11px; transition: transform 0.15s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .result-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .result-body.open { display: block; }
+
+  .result-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .result-section { display: flex; flex-direction: column; gap: 8px; }
+  .rs-title {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .rs-list { display: flex; flex-direction: column; gap: 5px; }
+  .rs-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .rs-item::before { content: "—"; color: var(--text-dim); flex-shrink: 0; }
+  .rs-empty { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+  .reasoning-block {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .reasoning-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  /* ---- RESULTS FILTERS ---- */
+  .results-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .filter-btn:hover { border-color: var(--border-light); color: var(--text); }
+  .filter-btn.active.viable { border-color: var(--viable-border); color: var(--viable); background: var(--viable-dim); }
+  .filter-btn.active.review { border-color: var(--review-border); color: var(--review); background: var(--review-dim); }
+  .filter-btn.active.reject { border-color: var(--reject-border); color: var(--reject); background: var(--reject-dim); }
+  .filter-btn.active.all { border-color: rgba(79,156,249,0.3); color: var(--accent); background: var(--accent-dim); }
+
+  .results-summary-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .summary-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    flex: 1;
+    min-width: 100px;
+  }
+  .summary-stat-num {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .summary-stat-num.viable { color: var(--viable); }
+  .summary-stat-num.review { color: var(--review); }
+  .summary-stat-num.reject { color: var(--reject); }
+  .summary-stat-label { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+    text-align: center;
+  }
+  .empty-icon { font-size: 36px; opacity: 0.4; }
+  .empty-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text-muted); }
+  .empty-sub { font-size: 12px; color: var(--text-dim); max-width: 280px; line-height: 1.6; }
+
+  /* ---- SPINNER ---- */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- NOTIFICATIONS ---- */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 9999;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.25s;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { border-color: var(--reject-border); }
+  .toast.success { border-color: var(--viable-border); }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 800px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .panel { padding: 20px; }
+    .result-sections { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-eyebrow">Employbridge</div>
+      <div class="logo-name">Resume<br>Review</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Workspace</div>
+      <button class="nav-btn active" onclick="showPanel('review')" id="nav-review">
+        <span class="ni">📋</span> New Review
+      </button>
+      <button class="nav-btn" onclick="showPanel('results')" id="nav-results">
+        <span class="ni">📊</span> Results
+        <span class="nav-count" id="results-count">0</span>
+      </button>
+    </nav>
+
+    <!-- CONFIG BOX -->
+    <div class="config-box" id="config-box">
+      <div class="config-head" onclick="toggleConfig()">
+        <div class="config-head-title">
+          <span class="status-dot" id="status-dot"></span>
+          Azure Config
+        </div>
+        <span class="config-toggle" id="config-chevron">▼</span>
+      </div>
+      <div class="config-body" id="config-body">
+        <div class="cf">
+          <div class="cf-label">Function URL</div>
+          <input type="url" id="cfg-url" placeholder="https://yourapp.azurewebsites.net/api/analyze" />
+        </div>
+        <div class="cf">
+          <div class="cf-label">Function Key (x-functions-key)</div>
+          <input type="password" id="cfg-key" placeholder="Your function key" />
+        </div>
+        <button class="btn-save" onclick="saveConfig()">Save Configuration</button>
+        <div class="config-saved" id="config-saved">✓ Configuration saved</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- REVIEW PANEL -->
+    <div class="panel active" id="panel-review">
+      <div class="panel-header">
+        <div class="panel-title">New Review</div>
+        <div class="panel-sub">Paste a job description, add context, and upload resumes to analyze.</div>
+      </div>
+
+      <!-- JOB DESCRIPTION -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            📄 Job Description
+            <span class="card-badge">required</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="job-desc" rows="8" placeholder="Paste the full job description here — include responsibilities, required qualifications, preferred qualifications, and any other role details. The more context provided, the more accurate the analysis."></textarea>
+        </div>
+      </div>
+
+      <!-- POSITION NOTES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🗒️ Position Notes
+            <span class="card-badge">optional</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="position-notes" rows="4" placeholder="Add any additional context not captured in the job description — client preferences, deal-breakers, specific industries to prioritize or avoid, compensation range, culture fit notes, etc."></textarea>
+        </div>
+      </div>
+
+      <!-- RESUMES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            👤 Resumes
+            <span class="card-badge">required</span>
+          </div>
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="mode-single" onclick="setMode('single')">Single</button>
+            <button class="mode-btn" id="mode-batch" onclick="setMode('batch')">Batch</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- SINGLE MODE -->
+          <div id="single-mode">
+            <div class="file-drop" id="single-drop">
+              <input type="file" id="single-file" accept=".txt,.pdf,.doc,.docx" onchange="handleSingleFile(event)" />
+              <div class="drop-icon">📎</div>
+              <div class="drop-text"><strong>Click to upload</strong> or drag and drop</div>
+              <div class="drop-hint">Supported: .txt, .pdf, .doc, .docx — PDF/DOC text will be extracted</div>
+            </div>
+            <div id="single-file-display" style="display:none; margin-top:12px;">
+              <div class="file-item">
+                <span class="file-icon">📄</span>
+                <span class="file-name" id="single-fname"></span>
+                <span class="file-size" id="single-fsize"></span>
+                <button class="file-remove" onclick="clearSingleFile()">✕</button>
+              </div>
+              <div style="margin-top:10px;">
+                <div class="cf-label" style="margin-bottom:4px;">Candidate Name <span style="color:var(--text-dim)">(optional override)</span></div>
+                <input type="text" id="single-name" placeholder="Auto-detected from resume" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--font-mono);font-size:12px;width:100%;transition:border-color .12s;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- BATCH MODE -->
+          <div id="batch-mode" style="display:none;">
+            <div class="file-drop" id="batch-drop">
+              <input type="file" id="batch-files" accept=".txt,.pdf,.doc,.docx" multiple onchange="handleBatchFiles(event)" />
+              <div class="drop-icon">📦</div>
+              <div class="drop-text"><strong>Click to upload multiple files</strong> or drag and drop</div>
+              <div class="drop-hint">Select multiple resumes at once — each will be analyzed individually</div>
+            </div>
+            <div class="file-list" id="batch-file-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-row">
+        <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">
+          <span id="btn-icon">⚡</span>
+          <span id="btn-label">Analyze</span>
+        </button>
+        <button class="btn-clear" onclick="clearAll()">Clear All</button>
+        <span class="status-msg" id="status-msg"></span>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-label">
+          <span id="progress-text">Analyzing...</span>
+          <span id="progress-frac"></span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="panel" id="panel-results">
+      <div class="panel-header">
+        <div class="panel-title">Results</div>
+        <div class="panel-sub">All analyzed candidates from this session.</div>
+      </div>
+
+      <div id="results-content">
+        <div class="empty-state" id="empty-results">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">No results yet</div>
+          <div class="empty-sub">Run an analysis from the New Review panel to see candidate assessments here.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+let config = { url: '', key: '' };
+let currentMode = 'single';
+let singleFileData = null;
+let batchFilesData = [];
+let results = [];
+let activeFilter = 'all';
+
+// ============================================================
+//  INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('rrt_config');
+  if (saved) {
+    try {
+      config = JSON.parse(saved);
+      document.getElementById('cfg-url').value = config.url || '';
+      document.getElementById('cfg-key').value = config.key || '';
+      updateConfigStatus();
+      // Collapse config if already set
+      if (config.url && config.key) {
+        document.getElementById('config-body').classList.add('hidden');
+        document.getElementById('config-chevron').textContent = '▶';
+      }
+    } catch(e) {}
+  }
+
+  setupDragDrop('single-drop', handleDropSingle);
+  setupDragDrop('batch-drop', handleDropBatch);
+});
+
+// ============================================================
+//  CONFIG
+// ============================================================
+function toggleConfig() {
+  const body = document.getElementById('config-body');
+  const chevron = document.getElementById('config-chevron');
+  body.classList.toggle('hidden');
+  chevron.textContent = body.classList.contains('hidden') ? '▶' : '▼';
+}
+
+function saveConfig() {
+  config.url = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+  config.key = document.getElementById('cfg-key').value.trim();
+  localStorage.setItem('rrt_config', JSON.stringify(config));
+  updateConfigStatus();
+  const saved = document.getElementById('config-saved');
+  saved.style.display = 'block';
+  setTimeout(() => saved.style.display = 'none', 2500);
+}
+
+function updateConfigStatus() {
+  const dot = document.getElementById('status-dot');
+  const box = document.getElementById('config-box');
+  if (config.url && config.key) {
+    dot.classList.add('ok');
+    box.classList.add('connected');
+  } else {
+    dot.classList.remove('ok');
+    box.classList.remove('connected');
+  }
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// ============================================================
+//  MODE
+// ============================================================
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('single-mode').style.display = mode === 'single' ? 'block' : 'none';
+  document.getElementById('batch-mode').style.display = mode === 'batch' ? 'block' : 'none';
+  document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+  document.getElementById('mode-batch').classList.toggle('active', mode === 'batch');
+}
+
+// ============================================================
+//  FILE HANDLING
+// ============================================================
+function setupDragDrop(id, handler) {
+  const el = document.getElementById(id);
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('dragover');
+    handler(e.dataTransfer.files);
+  });
+}
+
+function handleDropSingle(files) {
+  if (files.length > 0) processFile(files[0]).then(data => { singleFileData = data; showSingleFile(files[0]); });
+}
+function handleDropBatch(files) {
+  Array.from(files).forEach(f => processFile(f).then(data => addBatchFile(f, data)));
+}
+
+function handleSingleFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  processFile(f).then(data => { singleFileData = data; showSingleFile(f); });
+}
+function handleBatchFiles(e) {
+  Array.from(e.target.files).forEach(f => processFile(f).then(data => addBatchFile(f, data)));
+}
+
+function showSingleFile(file) {
+  document.getElementById('single-file-display').style.display = 'block';
+  document.getElementById('single-fname').textContent = file.name;
+  document.getElementById('single-fsize').textContent = formatSize(file.size);
+}
+
+function clearSingleFile() {
+  singleFileData = null;
+  document.getElementById('single-file-display').style.display = 'none';
+  document.getElementById('single-file').value = '';
+  document.getElementById('single-name').value = '';
+}
+
+function addBatchFile(file, data) {
+  const id = Date.now() + Math.random();
+  batchFilesData.push({ id, name: file.name, data });
+  renderBatchList();
+}
+
+function removeBatchFile(id) {
+  batchFilesData = batchFilesData.filter(f => f.id !== id);
+  renderBatchList();
+}
+
+function renderBatchList() {
+  const list = document.getElementById('batch-file-list');
+  list.innerHTML = batchFilesData.map(f => `
+    <div class="file-item">
+      <span class="file-icon">📄</span>
+      <span class="file-name">${escHtml(f.name)}</span>
+      <button class="file-remove" onclick="removeBatchFile(${f.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+async function processFile(file) {
+  // For .txt files, read directly. For others, extract what we can from text.
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    if (file.name.endsWith('.txt')) {
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsText(file);
+    } else {
+      // For PDF/DOC, read as text — works for text-based PDFs. Binary will be garbled but GPT-4o handles it reasonably.
+      // For best results, users should upload .txt exports of resumes.
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsText(file);
+    }
+  });
+}
+
+// ============================================================
+//  ANALYSIS
+// ============================================================
+async function runAnalysis() {
+  if (!config.url || !config.key) {
+    showToast('Please configure your Azure Function URL and key first.', 'error');
+    document.getElementById('config-body').classList.remove('hidden');
+    document.getElementById('config-chevron').textContent = '▼';
+    return;
+  }
+
+  const jobDesc = document.getElementById('job-desc').value.trim();
+  if (!jobDesc) { showToast('Please enter a job description.', 'error'); return; }
+
+  const positionNotes = document.getElementById('position-notes').value.trim();
+
+  let queue = [];
+  if (currentMode === 'single') {
+    if (!singleFileData) { showToast('Please upload a resume file.', 'error'); return; }
+    const name = document.getElementById('single-name').value.trim() || inferName(singleFileData, 'single-file-display');
+    queue.push({ name, text: singleFileData });
+  } else {
+    if (batchFilesData.length === 0) { showToast('Please upload at least one resume file.', 'error'); return; }
+    queue = batchFilesData.map(f => ({ name: inferNameFromFilename(f.name), text: f.data }));
+  }
+
+  // UI: running state
+  setRunning(true);
+  showProgress(0, queue.length);
+
+  const sessionResults = [];
+
+  for (let i = 0; i < queue.length; i++) {
+    updateProgress(i, queue.length, queue[i].name);
+    try {
+      const result = await callProxy(jobDesc, positionNotes, queue[i].text, queue[i].name);
+      result.candidateName = queue[i].name;
+      result.fileName = currentMode === 'batch' ? batchFilesData[i]?.name : document.getElementById('single-fname').textContent;
+      sessionResults.push(result);
+    } catch (err) {
+      sessionResults.push({
+        candidateName: queue[i].name,
+        error: err.message,
+        category: 'ERROR',
+      });
+    }
+    updateProgress(i + 1, queue.length, queue[i].name);
+  }
+
+  // Merge into results array
+  results = [...sessionResults, ...results];
+  updateResultsCount();
+  renderResults();
+  setRunning(false);
+  hideProgress();
+  showToast(`Analysis complete. ${sessionResults.length} resume${sessionResults.length !== 1 ? 's' : ''} reviewed.`, 'success');
+  showPanel('results');
+}
+
+async function callProxy(jobDescription, positionNotes, resumeText, candidateName) {
+  const response = await fetch(config.url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-functions-key': config.key,
+    },
+    body: JSON.stringify({ jobDescription, positionNotes, resumeText, candidateName }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.text();
+    throw new Error(`Server error ${response.status}: ${errBody}`);
+  }
+
+  return await response.json();
+}
+
+// ============================================================
+//  RESULTS
+// ============================================================
+function renderResults() {
+  const container = document.getElementById('results-content');
+
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No results yet</div>
+        <div class="empty-sub">Run an analysis from the New Review panel to see candidate assessments here.</div>
+      </div>`;
+    return;
+  }
+
+  const filtered = activeFilter === 'all' ? results : results.filter(r => (r.category || '').toLowerCase() === activeFilter);
+
+  const viable = results.filter(r => r.category === 'VIABLE').length;
+  const review = results.filter(r => r.category === 'REVIEW').length;
+  const reject = results.filter(r => r.category === 'REJECT').length;
+
+  container.innerHTML = `
+    <div class="results-summary-row">
+      <div class="summary-stat">
+        <div class="summary-stat-num viable">${viable}</div>
+        <div class="summary-stat-label">Viable<br>Candidates</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-num review">${review}</div>
+        <div class="summary-stat-label">Needs<br>Review</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-num reject">${reject}</div>
+        <div class="summary-stat-label">Not<br>a Fit</div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat-num" style="color:var(--text-muted)">${results.length}</div>
+        <div class="summary-stat-label">Total<br>Reviewed</div>
+      </div>
+    </div>
+
+    <div class="results-toolbar" style="margin-top:4px;">
+      <button class="filter-btn ${activeFilter==='all'?'active all':''}" onclick="setFilter('all')">All (${results.length})</button>
+      <button class="filter-btn ${activeFilter==='viable'?'active viable':''}" onclick="setFilter('viable')">✓ Viable (${viable})</button>
+      <button class="filter-btn ${activeFilter==='review'?'active review':''}" onclick="setFilter('review')">⚠ Review (${review})</button>
+      <button class="filter-btn ${activeFilter==='reject'?'active reject':''}" onclick="setFilter('reject')">✕ Reject (${reject})</button>
+      <button class="filter-btn" onclick="clearResults()" style="margin-left:auto;">Clear All</button>
+    </div>
+
+    <div class="results-grid" id="results-grid">
+      ${filtered.length === 0 ? '<div class="empty-state" style="padding:40px 20px;"><div class="empty-icon">🔎</div><div class="empty-title">No results match this filter</div></div>' : filtered.map((r, i) => renderResultCard(r, i)).join('')}
+    </div>
+  `;
+}
+
+function renderResultCard(r, i) {
+  if (r.error) {
+    return `
+      <div class="result-card reject">
+        <div class="result-header">
+          <div class="result-left">
+            <span class="verdict-badge reject">ERROR</span>
+            <span class="result-name">${escHtml(r.candidateName || 'Unknown')}</span>
+            <span class="result-summary">${escHtml(r.error)}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const cat = (r.category || '').toLowerCase();
+  const catLabel = r.category === 'VIABLE' ? '✓ Viable' : r.category === 'REVIEW' ? '⚠ Review' : '✕ Reject';
+  const uid = `result-${i}-${Date.now()}`;
+
+  return `
+    <div class="result-card ${cat}" id="${uid}">
+      <div class="result-header" onclick="toggleResult('${uid}')">
+        <div class="result-left">
+          <span class="verdict-badge ${cat}">${catLabel}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="result-name">${escHtml(r.candidateName || 'Unknown')}</div>
+            <div class="result-summary">${escHtml(r.summary || '')}</div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <div class="fit-score">
+            <div class="fit-score-num ${cat}">${r.fitScore ?? '--'}</div>
+            <div class="fit-score-label">Fit Score</div>
+          </div>
+          <span class="confidence-tag">${r.confidence || ''}</span>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="result-body" id="body-${uid}">
+        <div class="result-sections">
+          <div class="result-section">
+            <div class="rs-title">Strengths</div>
+            <div class="rs-list">
+              ${(r.strengths || []).length > 0
+                ? (r.strengths || []).map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')
+                : '<div class="rs-empty">None noted</div>'}
+            </div>
+          </div>
+          <div class="result-section">
+            <div class="rs-title">Concerns</div>
+            <div class="rs-list">
+              ${(r.concerns || []).length > 0
+                ? (r.concerns || []).map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')
+                : '<div class="rs-empty">None noted</div>'}
+            </div>
+          </div>
+          ${(r.followUpItems || []).length > 0 ? `
+          <div class="result-section" style="grid-column:1/-1;">
+            <div class="rs-title">Follow-up Items</div>
+            <div class="rs-list">
+              ${r.followUpItems.map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')}
+            </div>
+          </div>` : ''}
+        </div>
+        <div class="reasoning-block">
+          <div class="reasoning-label">AI Reasoning</div>
+          ${escHtml(r.reasoning || '')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleResult(uid) {
+  const body = document.getElementById('body-' + uid);
+  const chev = document.getElementById('chev-' + uid);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  renderResults();
+}
+
+function clearResults() {
+  if (!confirm('Clear all results from this session?')) return;
+  results = [];
+  activeFilter = 'all';
+  updateResultsCount();
+  renderResults();
+}
+
+function updateResultsCount() {
+  const el = document.getElementById('results-count');
+  el.textContent = results.length;
+  el.classList.toggle('has-results', results.length > 0);
+}
+
+// ============================================================
+//  PROGRESS / UI STATE
+// ============================================================
+function setRunning(running) {
+  const btn = document.getElementById('analyze-btn');
+  const icon = document.getElementById('btn-icon');
+  const label = document.getElementById('btn-label');
+  btn.disabled = running;
+  if (running) {
+    icon.outerHTML = '<span class="spinner" id="btn-icon"></span>';
+    label.textContent = 'Analyzing...';
+  } else {
+    document.getElementById('btn-icon').outerHTML = '<span id="btn-icon">⚡</span>';
+    label.textContent = 'Analyze';
+  }
+}
+
+function showProgress(done, total) {
+  document.getElementById('progress-wrap').classList.add('visible');
+  updateProgress(done, total, '');
+}
+
+function updateProgress(done, total, name) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-frac').textContent = `${done} / ${total}`;
+  document.getElementById('progress-text').textContent = done < total ? `Analyzing: ${name}` : 'Complete';
+}
+
+function hideProgress() {
+  setTimeout(() => document.getElementById('progress-wrap').classList.remove('visible'), 1000);
+}
+
+// ============================================================
+//  UTILITIES
+// ============================================================
+function clearAll() {
+  document.getElementById('job-desc').value = '';
+  document.getElementById('position-notes').value = '';
+  clearSingleFile();
+  batchFilesData = [];
+  renderBatchList();
+  document.getElementById('single-file').value = '';
+  document.getElementById('batch-files').value = '';
+}
+
+function inferName(text, displayId) {
+  const lines = (text || '').split('\n').slice(0, 5).map(l => l.trim()).filter(Boolean);
+  return lines[0] || 'Candidate';
+}
+
+function inferNameFromFilename(filename) {
+  return filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
