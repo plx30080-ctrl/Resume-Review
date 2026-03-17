@@ -625,6 +625,7 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -954,14 +955,20 @@ function renderBatchList() {
 }
 
 async function processFile(file) {
-  if (file.name.toLowerCase().endsWith('.pdf')) {
-    return extractPdfText(file);
-  }
+  const name = file.name.toLowerCase();
+  if (name.endsWith('.pdf')) return extractPdfText(file);
+  if (name.endsWith('.docx')) return extractDocxText(file);
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = e => resolve(e.target.result);
     reader.readAsText(file);
   });
+}
+
+async function extractDocxText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value;
 }
 
 async function extractPdfText(file) {
