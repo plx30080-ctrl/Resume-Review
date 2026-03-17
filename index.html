@@ -136,72 +136,6 @@
   }
   .nav-count.has-results { background: rgba(0,238,187,0.2); color: var(--eb-teal); }
 
-  .config-box {
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-top: auto;
-  }
-  .config-box.connected { border-color: rgba(0,238,187,0.35); }
-  .config-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.06);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    cursor: pointer;
-    user-select: none;
-  }
-  .config-head-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); }
-  .status-dot.ok { background: var(--eb-teal); }
-  .config-toggle { color: rgba(255,255,255,0.3); font-size: 10px; }
-  .config-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-  .config-body.hidden { display: none; }
-  .cf { display: flex; flex-direction: column; gap: 3px; }
-  .cf-label { font-size: 9px; letter-spacing: 0.06em; color: rgba(255,255,255,0.35); text-transform: uppercase; }
-  .cf input {
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 4px;
-    padding: 5px 8px;
-    color: #fff;
-    font-family: var(--font);
-    font-size: 11px;
-    width: 100%;
-    transition: border-color 0.12s;
-  }
-  .cf input:focus { outline: none; border-color: var(--eb-teal); }
-  .btn-save {
-    background: var(--eb-blue);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 10px;
-    font-family: var(--font);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.12s;
-  }
-  .btn-save:hover { background: var(--accent-hover); }
-  .config-saved {
-    font-size: 10px;
-    color: var(--eb-teal);
-    text-align: center;
-    display: none;
-  }
 
   /* ---- MAIN ---- */
   .main { overflow: hidden; display: flex; flex-direction: column; }
@@ -669,28 +603,6 @@
       </button>
     </nav>
 
-    <!-- CONFIG BOX -->
-    <div class="config-box" id="config-box">
-      <div class="config-head" onclick="toggleConfig()">
-        <div class="config-head-title">
-          <span class="status-dot" id="status-dot"></span>
-          Azure Config
-        </div>
-        <span class="config-toggle" id="config-chevron">▼</span>
-      </div>
-      <div class="config-body" id="config-body">
-        <div class="cf">
-          <div class="cf-label">Function URL</div>
-          <input type="url" id="cfg-url" placeholder="https://yourapp.azurewebsites.net/api/analyze" />
-        </div>
-        <div class="cf">
-          <div class="cf-label">Function Key (x-functions-key)</div>
-          <input type="password" id="cfg-key" placeholder="Your function key" />
-        </div>
-        <button class="btn-save" onclick="saveConfig()">Save Configuration</button>
-        <div class="config-saved" id="config-saved">✓ Configuration saved</div>
-      </div>
-    </div>
   </aside>
 
   <!-- MAIN -->
@@ -826,7 +738,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 // ============================================================
 //  STATE
 // ============================================================
-let config = { url: '', key: '' };
+let config = {
+  url: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/analyze',
+  key: ''
+};
 let currentMode = 'single';
 let singleFileData = null;
 let batchFilesData = [];
@@ -837,56 +752,11 @@ let activeFilter = 'all';
 //  INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('rrt_config');
-  if (saved) {
-    try {
-      config = JSON.parse(saved);
-      document.getElementById('cfg-url').value = config.url || '';
-      document.getElementById('cfg-key').value = config.key || '';
-      updateConfigStatus();
-      // Collapse config if already set
-      if (config.url && config.key) {
-        document.getElementById('config-body').classList.add('hidden');
-        document.getElementById('config-chevron').textContent = '▶';
-      }
-    } catch(e) {}
-  }
-
   setupDragDrop('single-drop', handleDropSingle);
   setupDragDrop('batch-drop', handleDropBatch);
 });
 
-// ============================================================
-//  CONFIG
-// ============================================================
-function toggleConfig() {
-  const body = document.getElementById('config-body');
-  const chevron = document.getElementById('config-chevron');
-  body.classList.toggle('hidden');
-  chevron.textContent = body.classList.contains('hidden') ? '▶' : '▼';
-}
-
-function saveConfig() {
-  config.url = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
-  config.key = document.getElementById('cfg-key').value.trim();
-  localStorage.setItem('rrt_config', JSON.stringify(config));
-  updateConfigStatus();
-  const saved = document.getElementById('config-saved');
-  saved.style.display = 'block';
-  setTimeout(() => saved.style.display = 'none', 2500);
-}
-
-function updateConfigStatus() {
-  const dot = document.getElementById('status-dot');
-  const box = document.getElementById('config-box');
-  if (config.url && config.key) {
-    dot.classList.add('ok');
-    box.classList.add('connected');
-  } else {
-    dot.classList.remove('ok');
-    box.classList.remove('connected');
-  }
-}
+// Config is baked in — no runtime configuration needed
 
 // ============================================================
 //  NAVIGATION
