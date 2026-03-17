@@ -564,6 +564,56 @@
   .toast.error { border-color: rgba(200,25,42,0.5); }
   .toast.success { border-color: rgba(0,238,187,0.4); }
 
+  /* ---- JD SAVE/LOAD ---- */
+  .jd-toolbar { margin-bottom: 8px; }
+  .jd-toolbar select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    cursor: pointer;
+    max-width: 320px;
+    width: 100%;
+  }
+  .jd-toolbar select:focus { outline: none; border-color: var(--accent); }
+  .jd-save-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .jd-save-row input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    transition: border-color .12s;
+  }
+  .jd-save-row input:focus { outline: none; border-color: var(--accent); }
+  .btn-save-jd {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: var(--text-body);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .12s, border-color .12s;
+  }
+  .btn-save-jd:hover { background: var(--surface3); border-color: var(--accent); }
+
+  /* ---- HISTORY ---- */
+  .loading-msg { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+
   /* ---- SCROLLBAR ---- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -601,6 +651,9 @@
         <span class="ni">📊</span> Results
         <span class="nav-count" id="results-count">0</span>
       </button>
+      <button class="nav-btn" onclick="showPanel('history')" id="nav-history">
+        <span class="ni">🕑</span> History
+      </button>
     </nav>
 
   </aside>
@@ -624,7 +677,16 @@
           </div>
         </div>
         <div class="card-body">
+          <div class="jd-toolbar">
+            <select id="jd-saved-select" onchange="loadSavedJob()">
+              <option value="">Load saved JD…</option>
+            </select>
+          </div>
           <textarea id="job-desc" rows="8" placeholder="Paste the full job description here — include responsibilities, required qualifications, preferred qualifications, and any other role details. The more context provided, the more accurate the analysis."></textarea>
+          <div class="jd-save-row">
+            <input type="text" id="jd-save-title" placeholder="Save as… (title for this JD)" />
+            <button class="btn-save-jd" onclick="saveJobDescription()">Save JD</button>
+          </div>
         </div>
       </div>
 
@@ -727,6 +789,20 @@
       </div>
     </div>
 
+    <!-- HISTORY PANEL -->
+    <div class="panel" id="panel-history">
+      <div class="panel-header">
+        <div class="panel-title">History</div>
+        <div class="panel-sub">All saved results across sessions, stored in Azure Table Storage.</div>
+      </div>
+      <div id="history-content">
+        <div class="empty-state">
+          <div class="empty-icon">🕑</div>
+          <div class="empty-title">Loading history…</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -742,6 +818,265 @@ let config = {
   url: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/analyze',
   key: ''
 };
+// ============================================================
+//  AZURE TABLE STORAGE
+// ============================================================
+const STORAGE = {
+  account: 'resumereviewstorageeb',
+  sas: 'sv=2024-11-04&ss=t&srt=sco&sp=rwl&se=2029-04-08T04:09:25Z' +
+       '&st=2026-03-17T19:54:25Z&spr=https' +
+       '&sig=at7k8oW4NLHDtWwO0eBFwiVkJFP0QXLaQHJ00Go%2FBQw%3D',
+  base() { return `https://${this.account}.table.core.windows.net`; },
+};
+
+const AzureTable = {
+  url(table, suffix = '') {
+    return `${STORAGE.base()}/${table}${suffix}?${STORAGE.sas}`;
+  },
+
+  async createTable(name) {
+    try {
+      await fetch(`${STORAGE.base()}/Tables?${STORAGE.sas}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ TableName: name }),
+      });
+    } catch(e) { /* ignore — table may already exist */ }
+  },
+
+  async insert(table, entity) {
+    const res = await fetch(this.url(table), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json;odata=nometadata',
+      },
+      body: JSON.stringify(entity),
+    });
+    if (!res.ok) throw new Error(`Storage insert failed: ${res.status}`);
+    return res.json();
+  },
+
+  async query(table, filter = '') {
+    let url = this.url(table);
+    if (filter) url += `&$filter=${encodeURIComponent(filter)}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json;odata=nometadata' },
+    });
+    if (!res.ok) throw new Error(`Storage query failed: ${res.status}`);
+    const data = await res.json();
+    return (data.value || []).reverse(); // newest first
+  },
+
+  async remove(table, partitionKey, rowKey) {
+    const suffix = `(PartitionKey='${encodeURIComponent(partitionKey)}',RowKey='${encodeURIComponent(rowKey)}')`;
+    const res = await fetch(`${STORAGE.base()}/${table}${suffix}?${STORAGE.sas}`, {
+      method: 'DELETE',
+      headers: { 'If-Match': '*' },
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`Storage delete failed: ${res.status}`);
+  },
+};
+
+async function initStorage() {
+  await Promise.all([
+    AzureTable.createTable('SavedJobs'),
+    AzureTable.createTable('Results'),
+  ]);
+  loadSavedJobs();
+}
+
+// ── Saved Job Descriptions ──────────────────────────────────
+async function saveJobDescription() {
+  const desc = document.getElementById('job-desc').value.trim();
+  if (!desc) { showToast('Enter a job description first.', 'error'); return; }
+  const titleInput = document.getElementById('jd-save-title').value.trim();
+  const title = titleInput || desc.substring(0, 60);
+  try {
+    await AzureTable.insert('SavedJobs', {
+      PartitionKey: 'jobs',
+      RowKey: Date.now().toString(),
+      Title: title,
+      Description: desc,
+      Notes: document.getElementById('position-notes').value.trim(),
+      CreatedAt: new Date().toISOString(),
+    });
+    document.getElementById('jd-save-title').value = '';
+    showToast('Job description saved.', 'success');
+    loadSavedJobs();
+  } catch(e) {
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+async function loadSavedJobs() {
+  try {
+    const rows = await AzureTable.query('SavedJobs', "PartitionKey eq 'jobs'");
+    const sel = document.getElementById('jd-saved-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Load saved JD…</option>' +
+      rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title)}</option>`).join('');
+  } catch(e) { /* silently ignore */ }
+}
+
+async function loadSavedJob() {
+  const sel = document.getElementById('jd-saved-select');
+  const rowKey = sel.value;
+  if (!rowKey) return;
+  try {
+    const rows = await AzureTable.query('SavedJobs',
+      `PartitionKey eq 'jobs' and RowKey eq '${rowKey}'`);
+    if (!rows.length) return;
+    const r = rows[0];
+    document.getElementById('job-desc').value = r.Description || '';
+    document.getElementById('position-notes').value = r.Notes || '';
+    sel.value = '';
+    showToast(`Loaded: ${r.Title}`, 'success');
+  } catch(e) {
+    showToast('Load failed: ' + e.message, 'error');
+  }
+}
+
+// ── Auto-save results ───────────────────────────────────────
+async function autoSaveResult(result, jobSnippet) {
+  if (result.error) return;
+  try {
+    await AzureTable.insert('Results', {
+      PartitionKey: 'results',
+      RowKey: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+      CandidateName: result.candidateName || 'Unknown',
+      JobSnippet: jobSnippet.substring(0, 120),
+      Category: result.category || '',
+      FitScore: result.fitScore ?? null,
+      Confidence: result.confidence || '',
+      Summary: (result.summary || '').substring(0, 500),
+      ResultJson: JSON.stringify(result),
+      CreatedAt: new Date().toISOString(),
+    });
+  } catch(e) { /* best-effort — don't surface storage errors to user */ }
+}
+
+// ── History panel ───────────────────────────────────────────
+let historyRows = [];
+
+async function loadHistory() {
+  const container = document.getElementById('history-content');
+  container.innerHTML = '<div class="loading-msg">Loading…</div>';
+  try {
+    historyRows = await AzureTable.query('Results');
+    renderHistory();
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>
+      <div class="empty-title">Could not load history</div>
+      <div class="empty-sub">${escHtml(e.message)}</div></div>`;
+  }
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-content');
+  if (!historyRows.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🕑</div>
+      <div class="empty-title">No history yet</div>
+      <div class="empty-sub">Results are automatically saved after each analysis.</div></div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="results-toolbar" style="margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text-muted)">${historyRows.length} saved result${historyRows.length !== 1 ? 's' : ''}</span>
+      <button class="filter-btn" onclick="clearHistory()" style="margin-left:auto;">Clear All</button>
+    </div>
+    <div class="results-grid">
+      ${historyRows.map(r => renderHistoryCard(r)).join('')}
+    </div>`;
+}
+
+function renderHistoryCard(r) {
+  const cat = (r.Category || '').toLowerCase();
+  const catLabel = r.Category === 'VIABLE' ? '✓ Viable'
+                 : r.Category === 'REVIEW' ? '⚠ Review'
+                 : r.Category === 'REJECT' ? '✕ Reject' : r.Category;
+  const date = r.CreatedAt
+    ? new Date(r.CreatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+  const uid = 'h-' + r.RowKey;
+  let body = '';
+  try {
+    const result = JSON.parse(r.ResultJson || '{}');
+    body = `
+      <div class="result-sections">
+        <div class="result-section">
+          <div class="rs-title">Strengths</div>
+          <div class="rs-list">${(result.strengths || []).length
+            ? result.strengths.map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')
+            : '<div class="rs-empty">None noted</div>'}</div>
+        </div>
+        <div class="result-section">
+          <div class="rs-title">Concerns</div>
+          <div class="rs-list">${(result.concerns || []).length
+            ? result.concerns.map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')
+            : '<div class="rs-empty">None noted</div>'}</div>
+        </div>
+        ${(result.followUpItems || []).length ? `
+        <div class="result-section" style="grid-column:1/-1;">
+          <div class="rs-title">Follow-up Items</div>
+          <div class="rs-list">${result.followUpItems.map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')}</div>
+        </div>` : ''}
+      </div>
+      <div class="reasoning-block">
+        <div class="reasoning-label">AI Reasoning</div>
+        ${escHtml(result.reasoning || '')}
+      </div>`;
+  } catch(e) { body = '<div class="rs-empty">Could not parse stored result.</div>'; }
+
+  return `
+    <div class="result-card ${cat}" id="${uid}">
+      <div class="result-header" onclick="toggleResult('${uid}')">
+        <div class="result-left">
+          <span class="verdict-badge ${cat}">${catLabel}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="result-name">${escHtml(r.CandidateName || 'Unknown')}</div>
+            <div class="result-summary">${escHtml(r.JobSnippet || '')}
+              <span style="color:var(--text-dim);font-size:11px;margin-left:6px;">${date}</span></div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <div class="fit-score">
+            <div class="fit-score-num ${cat}">${r.FitScore ?? '--'}</div>
+            <div class="fit-score-label">Fit Score</div>
+          </div>
+          <span class="confidence-tag">${r.Confidence || ''}</span>
+          <button class="file-remove" style="margin-left:8px;"
+            onclick="event.stopPropagation();deleteHistoryRow('${escHtml(r.RowKey)}')">✕</button>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="result-body" id="body-${uid}">${body}</div>
+    </div>`;
+}
+
+async function deleteHistoryRow(rowKey) {
+  if (!confirm('Delete this result from history?')) return;
+  try {
+    await AzureTable.remove('Results', 'results', rowKey);
+    historyRows = historyRows.filter(r => r.RowKey !== rowKey);
+    renderHistory();
+  } catch(e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+async function clearHistory() {
+  if (!confirm('Delete all history? This cannot be undone.')) return;
+  try {
+    await Promise.all(historyRows.map(r => AzureTable.remove('Results', 'results', r.RowKey)));
+    historyRows = [];
+    renderHistory();
+    showToast('History cleared.', 'success');
+  } catch(e) {
+    showToast('Clear failed: ' + e.message, 'error');
+  }
+}
+
 let currentMode = 'single';
 let singleFileData = null;
 let batchFilesData = [];
@@ -754,6 +1089,7 @@ let activeFilter = 'all';
 window.addEventListener('DOMContentLoaded', () => {
   setupDragDrop('single-drop', handleDropSingle);
   setupDragDrop('batch-drop', handleDropBatch);
+  initStorage();
 });
 
 // Config is baked in — no runtime configuration needed
@@ -766,6 +1102,7 @@ function showPanel(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'history') loadHistory();
 }
 
 // ============================================================
@@ -877,13 +1214,6 @@ async function extractPdfText(file) {
 //  ANALYSIS
 // ============================================================
 async function runAnalysis() {
-  if (!config.url || !config.key) {
-    showToast('Please configure your Azure Function URL and key first.', 'error');
-    document.getElementById('config-body').classList.remove('hidden');
-    document.getElementById('config-chevron').textContent = '▼';
-    return;
-  }
-
   const jobDesc = document.getElementById('job-desc').value.trim();
   if (!jobDesc) { showToast('Please enter a job description.', 'error'); return; }
 
@@ -912,6 +1242,7 @@ async function runAnalysis() {
       result.candidateName = queue[i].name;
       result.fileName = currentMode === 'batch' ? batchFilesData[i]?.name : document.getElementById('single-fname').textContent;
       sessionResults.push(result);
+      autoSaveResult(result, jobDesc);
     } catch (err) {
       sessionResults.push({
         candidateName: queue[i].name,
