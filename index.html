@@ -16,12 +16,12 @@
     --eb-purple: #9933EB;
 
     /* Surfaces */
-    --bg: #EBEBEB;
+    --bg: #F0F2F8;
     --surface: #FFFFFF;
-    --surface2: #F3F4F6;
-    --surface3: #E4E6EA;
-    --border: #D0D4DC;
-    --border-light: #A8AEBB;
+    --surface2: #F5F6FA;
+    --surface3: #EAECF3;
+    --border: #D4D8E8;
+    --border-light: #A8B0CC;
 
     /* Text */
     --text: #001166;
@@ -68,8 +68,8 @@
 
   /* ---- SIDEBAR ---- */
   .sidebar {
-    background: var(--eb-navy);
-    border-right: none;
+    background: #FFFFFF;
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     position: sticky;
@@ -81,20 +81,20 @@
   }
   .logo {
     padding: 4px 8px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid var(--border);
   }
   .logo-eyebrow {
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--eb-teal);
+    color: var(--accent);
     margin-bottom: 5px;
   }
   .logo-name {
     font-size: 20px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--eb-navy);
     line-height: 1.2;
   }
   .nav { display: flex; flex-direction: column; gap: 2px; }
@@ -103,7 +103,7 @@
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
+    color: var(--text-dim);
     padding: 0 10px;
     margin: 10px 0 4px;
   }
@@ -115,7 +115,7 @@
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: rgba(255,255,255,0.55);
+    color: var(--text-muted);
     font-family: var(--font);
     font-size: 13px;
     cursor: pointer;
@@ -123,18 +123,18 @@
     width: 100%;
     transition: background 0.12s, color 0.12s;
   }
-  .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-  .nav-btn.active { background: rgba(0,238,187,0.15); color: var(--eb-teal); }
+  .nav-btn:hover { background: var(--accent-dim); color: var(--accent); }
+  .nav-btn.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 7px; }
   .nav-btn .ni { width: 15px; text-align: center; font-size: 13px; }
   .nav-count {
     margin-left: auto;
-    background: rgba(255,255,255,0.1);
+    background: var(--surface2);
     border-radius: 10px;
     padding: 1px 7px;
     font-size: 10px;
-    color: rgba(255,255,255,0.4);
+    color: var(--text-dim);
   }
-  .nav-count.has-results { background: rgba(0,238,187,0.2); color: var(--eb-teal); }
+  .nav-count.has-results { background: var(--accent-dim); color: var(--accent); }
 
 
   /* ---- MAIN ---- */
