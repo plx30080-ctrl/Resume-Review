@@ -698,6 +698,8 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
 </head>
 <body>
 
@@ -996,7 +998,9 @@
             </div>
             <div class="enhance-action-row">
               <button class="btn-secondary" onclick="copyEnhancedResume()">📋 Copy</button>
-              <button class="btn-secondary" onclick="downloadEnhancedResume()">⬇️ Download .txt</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('txt')">⬇️ .txt</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('pdf')">⬇️ .pdf</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('docx')">⬇️ .docx</button>
             </div>
           </div>
           <div class="card-body">
@@ -1893,14 +1897,112 @@ function copyEnhancedResume() {
     .catch(() => showToast('Copy failed — please select and copy manually.', 'error'));
 }
 
-function downloadEnhancedResume() {
+function downloadEnhancedResume(format = 'txt') {
   if (!enhancementResult?.enhancedResume) return;
+  if (format === 'pdf') { downloadEnhancedResumeAsPdf(); return; }
+  if (format === 'docx') { downloadEnhancedResumeAsDocx(); return; }
+  // txt
   const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
   const blob = new Blob([enhancementResult.enhancedResume], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `${name}_enhanced_resume.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadEnhancedResumeAsPdf() {
+  const { jsPDF } = window.jspdf;
+  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const margin = 50;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = pageWidth - margin * 2;
+  const lineHeight = 15;
+  let y = margin;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+
+  for (const para of enhancementResult.enhancedResume.split('\n')) {
+    const trimmed = para.trim();
+
+    // All-caps section headers — bold, slightly larger
+    if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      if (y + lineHeight * 2 > pageHeight - margin) { doc.addPage(); y = margin; }
+      y += 6; // extra space before header
+      doc.text(trimmed, margin, y);
+      y += lineHeight + 2;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      continue;
+    }
+
+    const lines = doc.splitTextToSize(para || ' ', maxWidth);
+    for (const line of lines) {
+      if (y + lineHeight > pageHeight - margin) { doc.addPage(); y = margin; }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+  }
+
+  doc.save(`${name}_enhanced_resume.pdf`);
+}
+
+async function downloadEnhancedResumeAsDocx() {
+  const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
+  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+
+  const paragraphs = enhancementResult.enhancedResume.split('\n').map(line => {
+    const trimmed = line.trim();
+
+    // All-caps section header
+    if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
+      return new Paragraph({
+        children: [new TextRun({ text: trimmed, bold: true, size: 26 })],
+        spacing: { before: 240, after: 80 },
+        border: { bottom: { color: 'CCCCCC', size: 6, space: 4, style: 'single' } },
+      });
+    }
+
+    // Bullet point (dash or bullet char)
+    if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+      return new Paragraph({
+        children: [new TextRun({ text: trimmed.replace(/^[-•]\s*/, ''), size: 22 })],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      });
+    }
+
+    // Empty line → small spacer
+    if (!trimmed) {
+      return new Paragraph({ children: [new TextRun('')], spacing: { after: 80 } });
+    }
+
+    // Regular line
+    return new Paragraph({
+      children: [new TextRun({ text: line, size: 22 })],
+      spacing: { after: 40 },
+    });
+  });
+
+  const doc = new Document({
+    sections: [{
+      properties: {},
+      children: paragraphs,
+    }],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name}_enhanced_resume.docx`;
   a.click();
   URL.revokeObjectURL(url);
 }
