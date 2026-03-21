@@ -1,4 +1,4 @@
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+const { AzureOpenAI } = require("@azure/openai");
 
 module.exports = async function (context, req) {
   const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
@@ -81,22 +81,24 @@ ${resumeText}
 
 Enhance this resume to better showcase the candidate's genuine fit for the role described above. Preserve all factual details while making their qualifications as compelling and relevant as possible.`;
 
-  try {
-    const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+  const client = new AzureOpenAI({ endpoint, apiKey, deployment: deploymentName, apiVersion: "2024-08-01-preview" });
 
+  try {
     let response;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        response = await client.getChatCompletions(deploymentName, [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ], {
-          maxTokens: 3000,
+        response = await client.chat.completions.create({
+          model: deploymentName,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 3000,
           temperature: 0.4,
         });
         break;
       } catch (err) {
-        const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
+        const isRateLimit = err.status === 429;
         if (isRateLimit && attempt < 3) {
           await new Promise(r => setTimeout(r, attempt * 2000));
           continue;
@@ -112,18 +114,14 @@ Enhance this resume to better showcase the candidate's genuine fit for the role 
       result = JSON.parse(raw);
     } catch {
       context.res.status = 500;
-      context.res.body = JSON.stringify({
-        error: "AI returned unexpected format",
-        raw,
-      });
+      context.res.body = JSON.stringify({ error: "AI returned unexpected format", raw });
       return;
     }
 
     context.res.status = 200;
     context.res.body = JSON.stringify(result);
   } catch (err) {
-    const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
-    if (isRateLimit) {
+    if (err.status === 429) {
       context.res.status = 429;
       context.res.body = JSON.stringify({
         error: "Azure OpenAI rate limit exceeded. Please wait a moment and try again.",

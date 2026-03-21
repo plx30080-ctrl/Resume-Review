@@ -7,7 +7,7 @@
     "start": "func start"
   },
   "dependencies": {
-    "@azure/openai": "^1.0.0"
+    "@azure/openai": "^2.0.0"
   },
   "engines": {
     "node": ">=18"
