@@ -1,4 +1,4 @@
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+const https = require("https");
 
 module.exports = async function (context, req) {
   const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
@@ -81,59 +81,75 @@ ${resumeText}
 
 Enhance this resume to better showcase the candidate's genuine fit for the role described above. Preserve all factual details while making their qualifications as compelling and relevant as possible.`;
 
-  try {
-    const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+  const url = new URL(`${endpoint}openai/deployments/${deploymentName}/chat/completions?api-version=2024-08-01-preview`);
 
+  try {
     let response;
     for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        response = await client.getChatCompletions(deploymentName, [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ], {
-          maxTokens: 3000,
+      response = await new Promise((resolve, reject) => {
+        const body = JSON.stringify({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 3000,
           temperature: 0.4,
         });
-        break;
-      } catch (err) {
-        const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
-        if (isRateLimit && attempt < 3) {
-          await new Promise(r => setTimeout(r, attempt * 2000));
-          continue;
-        }
-        throw err;
+        const req = https.request({
+          hostname: url.hostname,
+          path: url.pathname + url.search,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "api-key": apiKey,
+            "Content-Length": Buffer.byteLength(body),
+          },
+        }, (res) => {
+          let data = "";
+          res.on("data", chunk => data += chunk);
+          res.on("end", () => resolve({ status: res.statusCode, body: data }));
+        });
+        req.on("error", reject);
+        req.write(body);
+        req.end();
+      });
+
+      if (response.status === 429 && attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 2000));
+        continue;
       }
+      break;
     }
 
-    const raw = response.choices[0]?.message?.content || "";
+    if (response.status === 429) {
+      context.res.status = 429;
+      context.res.body = JSON.stringify({ error: "Azure OpenAI rate limit exceeded. Please wait a moment and try again." });
+      return;
+    }
+
+    if (response.status !== 200) {
+      context.res.status = 500;
+      context.res.body = JSON.stringify({ error: "Azure OpenAI error: " + response.body });
+      return;
+    }
+
+    const parsed = JSON.parse(response.body);
+    const raw = parsed.choices[0]?.message?.content || "";
 
     let result;
     try {
       result = JSON.parse(raw);
     } catch {
       context.res.status = 500;
-      context.res.body = JSON.stringify({
-        error: "AI returned unexpected format",
-        raw,
-      });
+      context.res.body = JSON.stringify({ error: "AI returned unexpected format", raw });
       return;
     }
 
     context.res.status = 200;
     context.res.body = JSON.stringify(result);
   } catch (err) {
-    const isRateLimit = err.statusCode === 429 || err.response?.status === 429;
-    if (isRateLimit) {
-      context.res.status = 429;
-      context.res.body = JSON.stringify({
-        error: "Azure OpenAI rate limit exceeded. Please wait a moment and try again.",
-      });
-    } else {
-      context.log.error("Azure OpenAI error:", err.message);
-      context.res.status = 500;
-      context.res.body = JSON.stringify({
-        error: "Failed to contact Azure OpenAI: " + err.message,
-      });
-    }
+    context.log.error("Azure OpenAI error:", err.message);
+    context.res.status = 500;
+    context.res.body = JSON.stringify({ error: "Failed to contact Azure OpenAI: " + err.message });
   }
 };
