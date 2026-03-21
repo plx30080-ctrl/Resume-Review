@@ -16,12 +16,12 @@
     --eb-purple: #9933EB;
 
     /* Surfaces */
-    --bg: #EBEBEB;
+    --bg: #F0F2F8;
     --surface: #FFFFFF;
-    --surface2: #F3F4F6;
-    --surface3: #E4E6EA;
-    --border: #D0D4DC;
-    --border-light: #A8AEBB;
+    --surface2: #F5F6FA;
+    --surface3: #EAECF3;
+    --border: #D4D8E8;
+    --border-light: #A8B0CC;
 
     /* Text */
     --text: #001166;
@@ -68,8 +68,8 @@
 
   /* ---- SIDEBAR ---- */
   .sidebar {
-    background: var(--eb-navy);
-    border-right: none;
+    background: #FFFFFF;
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     position: sticky;
@@ -81,20 +81,20 @@
   }
   .logo {
     padding: 4px 8px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid var(--border);
   }
   .logo-eyebrow {
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--eb-teal);
+    color: var(--accent);
     margin-bottom: 5px;
   }
   .logo-name {
     font-size: 20px;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--eb-navy);
     line-height: 1.2;
   }
   .nav { display: flex; flex-direction: column; gap: 2px; }
@@ -103,7 +103,7 @@
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
+    color: var(--text-dim);
     padding: 0 10px;
     margin: 10px 0 4px;
   }
@@ -115,7 +115,7 @@
     border-radius: 6px;
     border: none;
     background: transparent;
-    color: rgba(255,255,255,0.55);
+    color: var(--text-muted);
     font-family: var(--font);
     font-size: 13px;
     cursor: pointer;
@@ -123,18 +123,18 @@
     width: 100%;
     transition: background 0.12s, color 0.12s;
   }
-  .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-  .nav-btn.active { background: rgba(0,238,187,0.15); color: var(--eb-teal); }
+  .nav-btn:hover { background: var(--accent-dim); color: var(--accent); }
+  .nav-btn.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 7px; }
   .nav-btn .ni { width: 15px; text-align: center; font-size: 13px; }
   .nav-count {
     margin-left: auto;
-    background: rgba(255,255,255,0.1);
+    background: var(--surface2);
     border-radius: 10px;
     padding: 1px 7px;
     font-size: 10px;
-    color: rgba(255,255,255,0.4);
+    color: var(--text-dim);
   }
-  .nav-count.has-results { background: rgba(0,238,187,0.2); color: var(--eb-teal); }
+  .nav-count.has-results { background: var(--accent-dim); color: var(--accent); }
 
 
   /* ---- MAIN ---- */
@@ -614,6 +614,74 @@
   /* ---- HISTORY ---- */
   .loading-msg { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
 
+  /* ---- ENHANCE ---- */
+  .btn-enhance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--eb-purple);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 26px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.12s, box-shadow 0.12s;
+    letter-spacing: 0.02em;
+  }
+  .btn-enhance:hover:not(:disabled) { background: #7a22c9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(153,51,235,0.3); }
+  .btn-enhance:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .enhanced-resume-box {
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--text-body);
+    white-space: pre-wrap;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    max-height: 480px;
+    overflow-y: auto;
+    resize: vertical;
+  }
+  .enhance-action-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-body);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .enhance-changes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+  .enhance-summary-block {
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: rgba(153,51,235,0.06);
+    border: 1px solid rgba(153,51,235,0.2);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-body);
+    line-height: 1.6;
+  }
+
   /* ---- SCROLLBAR ---- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -630,6 +698,8 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
 </head>
 <body>
 
@@ -653,6 +723,10 @@
       </button>
       <button class="nav-btn" onclick="showPanel('history')" id="nav-history">
         <span class="ni">🕑</span> History
+      </button>
+      <div class="nav-label" style="margin-top:14px;">Tools</div>
+      <button class="nav-btn" onclick="showPanel('enhance')" id="nav-enhance">
+        <span class="ni">✨</span> Enhance Resume
       </button>
     </nav>
 
@@ -803,6 +877,140 @@
       </div>
     </div>
 
+    <!-- ENHANCE PANEL -->
+    <div class="panel" id="panel-enhance">
+      <div class="panel-header">
+        <div class="panel-title">Enhance Resume</div>
+        <div class="panel-sub">Already know a candidate is a great fit? Refine their resume to better show it on paper — without changing the facts.</div>
+      </div>
+
+      <!-- JOB DESCRIPTION -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            📄 Job Description
+            <span class="card-badge">required</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="jd-toolbar">
+            <select id="enh-jd-saved-select" onchange="loadSavedJobEnhance()">
+              <option value="">Load saved JD…</option>
+            </select>
+          </div>
+          <textarea id="enh-job-desc" rows="6" placeholder="Paste the job description here — the AI will align the resume to these requirements."></textarea>
+        </div>
+      </div>
+
+      <!-- POSITION NOTES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🗒️ Position Notes
+            <span class="card-badge">optional</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="enh-position-notes" rows="3" placeholder="Client preferences, must-haves, culture fit priorities, or any other context for this role."></textarea>
+        </div>
+      </div>
+
+      <!-- INTERVIEW NOTES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🎙️ Interview Notes
+            <span class="card-badge">optional — but recommended</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="enh-interview-notes" rows="5" placeholder="What did you learn about this candidate in the interview that their resume doesn't show? E.g. 'Led a team of 8 during a system migration but resume just says team member', 'Has PMP certification, forgot to include it', 'Managed $2M budget in current role', etc."></textarea>
+        </div>
+      </div>
+
+      <!-- RESUME -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            👤 Resume
+            <span class="card-badge">required</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="file-drop" id="enhance-drop">
+            <input type="file" id="enhance-file" accept=".txt,.pdf,.doc,.docx" onchange="handleEnhanceFile(event)" />
+            <div class="drop-icon">📎</div>
+            <div class="drop-text"><strong>Click to upload</strong> or drag and drop</div>
+            <div class="drop-hint">Supported: .txt, .pdf, .doc, .docx</div>
+          </div>
+          <div id="enhance-file-display" style="display:none; margin-top:12px;">
+            <div class="file-item">
+              <span class="file-icon">📄</span>
+              <span class="file-name" id="enhance-fname"></span>
+              <span class="file-size" id="enhance-fsize"></span>
+              <button class="file-remove" onclick="clearEnhanceFile()">✕</button>
+            </div>
+            <div style="margin-top:10px;">
+              <div style="margin-bottom:4px;font-size:12px;color:var(--text-muted);">Candidate Name <span style="color:var(--text-dim)">(optional override)</span></div>
+              <input type="text" id="enhance-name" placeholder="Auto-detected from resume" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;width:100%;transition:border-color .12s;" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-row">
+        <button class="btn-enhance" id="enhance-btn" onclick="runEnhancement()">
+          <span id="enh-btn-icon">✨</span>
+          <span id="enh-btn-label">Enhance Resume</span>
+        </button>
+        <button class="btn-clear" onclick="clearEnhanceForm()">Clear</button>
+        <span class="status-msg" id="enh-status-msg"></span>
+      </div>
+
+      <!-- OUTPUT -->
+      <div id="enhance-output" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              ✅ Enhancement Summary
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="enhance-summary-block" id="enh-summary"></div>
+            <div class="enhance-changes-grid">
+              <div class="result-section">
+                <div class="rs-title">Changes Made</div>
+                <div class="rs-list" id="enh-changes-list"></div>
+              </div>
+              <div class="result-section">
+                <div class="rs-title">Key Alignments to Role</div>
+                <div class="rs-list" id="enh-alignments-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              📄 Enhanced Resume
+            </div>
+            <div class="enhance-action-row">
+              <button class="btn-secondary" onclick="copyEnhancedResume()">📋 Copy</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('txt')">⬇️ .txt</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('pdf')">⬇️ .pdf</button>
+              <button class="btn-secondary" onclick="downloadEnhancedResume('docx')">⬇️ .docx</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="enhanced-resume-box" id="enh-resume-text"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </main>
 </div>
 
@@ -816,6 +1024,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 // ============================================================
 let config = {
   url: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/analyze',
+  enhanceUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/enhance',
   key: ''
 };
 // ============================================================
@@ -884,6 +1093,7 @@ async function initStorage() {
     AzureTable.createTable('Results'),
   ]);
   loadSavedJobs();
+  loadSavedJobsEnhance();
 }
 
 // ── Saved Job Descriptions ──────────────────────────────────
@@ -1089,6 +1299,7 @@ let activeFilter = 'all';
 window.addEventListener('DOMContentLoaded', () => {
   setupDragDrop('single-drop', handleDropSingle);
   setupDragDrop('batch-drop', handleDropBatch);
+  setupDragDrop('enhance-drop', handleDropEnhance);
   initStorage();
 });
 
@@ -1103,6 +1314,7 @@ function showPanel(name) {
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   if (name === 'history') loadHistory();
+  if (name === 'enhance') loadSavedJobsEnhance();
 }
 
 // ============================================================
@@ -1516,6 +1728,283 @@ function showToast(msg, type = '') {
   t.className = 'toast ' + type;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ============================================================
+//  ENHANCE FEATURE
+// ============================================================
+let enhanceFileData = null;
+let enhancementResult = null;
+
+async function loadSavedJobsEnhance() {
+  try {
+    const rows = await AzureTable.query('SavedJobs', "PartitionKey eq 'jobs'");
+    const sel = document.getElementById('enh-jd-saved-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Load saved JD…</option>' +
+      rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title)}</option>`).join('');
+  } catch(e) { /* silently ignore */ }
+}
+
+async function loadSavedJobEnhance() {
+  const sel = document.getElementById('enh-jd-saved-select');
+  const rowKey = sel.value;
+  if (!rowKey) return;
+  try {
+    const rows = await AzureTable.query('SavedJobs',
+      `PartitionKey eq 'jobs' and RowKey eq '${rowKey}'`);
+    if (!rows.length) return;
+    const r = rows[0];
+    document.getElementById('enh-job-desc').value = r.Description || '';
+    document.getElementById('enh-position-notes').value = r.Notes || '';
+    sel.value = '';
+    showToast(`Loaded: ${r.Title}`, 'success');
+  } catch(e) {
+    showToast('Load failed: ' + e.message, 'error');
+  }
+}
+
+function handleEnhanceFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  processFile(f).then(data => { enhanceFileData = data; showEnhanceFile(f); });
+}
+
+function handleDropEnhance(files) {
+  if (files.length > 0) processFile(files[0]).then(data => { enhanceFileData = data; showEnhanceFile(files[0]); });
+}
+
+function showEnhanceFile(file) {
+  document.getElementById('enhance-file-display').style.display = 'block';
+  document.getElementById('enhance-fname').textContent = file.name;
+  document.getElementById('enhance-fsize').textContent = formatSize(file.size);
+}
+
+function clearEnhanceFile() {
+  enhanceFileData = null;
+  document.getElementById('enhance-file-display').style.display = 'none';
+  document.getElementById('enhance-file').value = '';
+  document.getElementById('enhance-name').value = '';
+}
+
+function clearEnhanceForm() {
+  document.getElementById('enh-job-desc').value = '';
+  document.getElementById('enh-position-notes').value = '';
+  document.getElementById('enh-interview-notes').value = '';
+  clearEnhanceFile();
+  document.getElementById('enhance-output').style.display = 'none';
+  enhancementResult = null;
+}
+
+async function runEnhancement() {
+  const jobDesc = document.getElementById('enh-job-desc').value.trim();
+  if (!jobDesc) { showToast('Please enter a job description.', 'error'); return; }
+  if (!enhanceFileData) { showToast('Please upload a resume file.', 'error'); return; }
+
+  const positionNotes = document.getElementById('enh-position-notes').value.trim();
+  const interviewNotes = document.getElementById('enh-interview-notes').value.trim();
+  const candidateName = document.getElementById('enhance-name').value.trim()
+    || inferName(enhanceFileData, 'enhance-file-display');
+
+  setEnhanceRunning(true);
+  document.getElementById('enh-status-msg').textContent = '';
+  document.getElementById('enhance-output').style.display = 'none';
+
+  try {
+    const result = await callEnhanceProxy(jobDesc, positionNotes, interviewNotes, enhanceFileData, candidateName);
+    enhancementResult = result;
+    enhancementResult.candidateName = candidateName;
+    renderEnhanceResult(result, candidateName);
+    showToast('Resume enhanced successfully.', 'success');
+  } catch(err) {
+    document.getElementById('enh-status-msg').textContent = err.message;
+    document.getElementById('enh-status-msg').className = 'status-msg error';
+    showToast('Enhancement failed: ' + err.message, 'error');
+  } finally {
+    setEnhanceRunning(false);
+  }
+}
+
+async function callEnhanceProxy(jobDescription, positionNotes, interviewNotes, resumeText, candidateName) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(config.enhanceUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-functions-key': config.key,
+      },
+      body: JSON.stringify({ jobDescription, positionNotes, interviewNotes, resumeText, candidateName }),
+    });
+
+    if (response.status === 429) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 3000));
+        continue;
+      }
+      throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
+    }
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Server error ${response.status}: ${errBody}`);
+    }
+
+    return await response.json();
+  }
+}
+
+function renderEnhanceResult(result, candidateName) {
+  // Summary block
+  document.getElementById('enh-summary').textContent = result.summary || '';
+
+  // Changes list
+  const changesList = document.getElementById('enh-changes-list');
+  changesList.innerHTML = (result.changes || []).length > 0
+    ? result.changes.map(c => `<div class="rs-item">${escHtml(c)}</div>`).join('')
+    : '<div class="rs-empty">No specific changes noted.</div>';
+
+  // Alignments list
+  const alignList = document.getElementById('enh-alignments-list');
+  alignList.innerHTML = (result.keyAlignments || []).length > 0
+    ? result.keyAlignments.map(a => `<div class="rs-item">${escHtml(a)}</div>`).join('')
+    : '<div class="rs-empty">No alignments noted.</div>';
+
+  // Enhanced resume text
+  document.getElementById('enh-resume-text').textContent = result.enhancedResume || '';
+
+  document.getElementById('enhance-output').style.display = 'block';
+  document.getElementById('enhance-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setEnhanceRunning(running) {
+  const btn = document.getElementById('enhance-btn');
+  const icon = document.getElementById('enh-btn-icon');
+  const label = document.getElementById('enh-btn-label');
+  btn.disabled = running;
+  if (running) {
+    icon.outerHTML = '<span class="spinner" id="enh-btn-icon"></span>';
+    label.textContent = 'Enhancing...';
+  } else {
+    document.getElementById('enh-btn-icon').outerHTML = '<span id="enh-btn-icon">✨</span>';
+    label.textContent = 'Enhance Resume';
+  }
+}
+
+function copyEnhancedResume() {
+  if (!enhancementResult?.enhancedResume) return;
+  navigator.clipboard.writeText(enhancementResult.enhancedResume)
+    .then(() => showToast('Copied to clipboard.', 'success'))
+    .catch(() => showToast('Copy failed — please select and copy manually.', 'error'));
+}
+
+function downloadEnhancedResume(format = 'txt') {
+  if (!enhancementResult?.enhancedResume) return;
+  if (format === 'pdf') { downloadEnhancedResumeAsPdf(); return; }
+  if (format === 'docx') { downloadEnhancedResumeAsDocx(); return; }
+  // txt
+  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+  const blob = new Blob([enhancementResult.enhancedResume], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name}_enhanced_resume.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadEnhancedResumeAsPdf() {
+  const { jsPDF } = window.jspdf;
+  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const margin = 50;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = pageWidth - margin * 2;
+  const lineHeight = 15;
+  let y = margin;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+
+  for (const para of enhancementResult.enhancedResume.split('\n')) {
+    const trimmed = para.trim();
+
+    // All-caps section headers — bold, slightly larger
+    if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      if (y + lineHeight * 2 > pageHeight - margin) { doc.addPage(); y = margin; }
+      y += 6; // extra space before header
+      doc.text(trimmed, margin, y);
+      y += lineHeight + 2;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      continue;
+    }
+
+    const lines = doc.splitTextToSize(para || ' ', maxWidth);
+    for (const line of lines) {
+      if (y + lineHeight > pageHeight - margin) { doc.addPage(); y = margin; }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+  }
+
+  doc.save(`${name}_enhanced_resume.pdf`);
+}
+
+async function downloadEnhancedResumeAsDocx() {
+  const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
+  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+
+  const paragraphs = enhancementResult.enhancedResume.split('\n').map(line => {
+    const trimmed = line.trim();
+
+    // All-caps section header
+    if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
+      return new Paragraph({
+        children: [new TextRun({ text: trimmed, bold: true, size: 26 })],
+        spacing: { before: 240, after: 80 },
+        border: { bottom: { color: 'CCCCCC', size: 6, space: 4, style: 'single' } },
+      });
+    }
+
+    // Bullet point (dash or bullet char)
+    if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+      return new Paragraph({
+        children: [new TextRun({ text: trimmed.replace(/^[-•]\s*/, ''), size: 22 })],
+        bullet: { level: 0 },
+        spacing: { after: 40 },
+      });
+    }
+
+    // Empty line → small spacer
+    if (!trimmed) {
+      return new Paragraph({ children: [new TextRun('')], spacing: { after: 80 } });
+    }
+
+    // Regular line
+    return new Paragraph({
+      children: [new TextRun({ text: line, size: 22 })],
+      spacing: { after: 40 },
+    });
+  });
+
+  const doc = new Document({
+    sections: [{
+      properties: {},
+      children: paragraphs,
+    }],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name}_enhanced_resume.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
