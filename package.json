@@ -6,9 +6,7 @@
   "scripts": {
     "start": "func start"
   },
-  "dependencies": {
-    "@azure/openai": "^2.0.0"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=18"
   }
