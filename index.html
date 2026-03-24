@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resume Review Tool</title>
+<title>BridgeBuilder</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,18 +34,18 @@
     --accent-dim: rgba(0,51,235,0.07);
     --accent-hover: #0029C4;
 
-    /* Verdict: Viable → teal */
+    /* Verdict: Viable -> teal */
     --viable: #007A5E;
     --viable-bright: #00EEBB;
     --viable-dim: rgba(0,238,187,0.12);
     --viable-border: rgba(0,238,187,0.45);
 
-    /* Verdict: Review → amber */
+    /* Verdict: Review -> amber */
     --review: #B45309;
     --review-dim: rgba(180,83,9,0.08);
     --review-border: rgba(180,83,9,0.28);
 
-    /* Verdict: Reject → red */
+    /* Verdict: Reject -> red */
     --reject: #C8192A;
     --reject-dim: rgba(200,25,42,0.07);
     --reject-border: rgba(200,25,42,0.28);
@@ -96,6 +96,12 @@
     font-weight: 700;
     color: var(--eb-navy);
     line-height: 1.2;
+  }
+  .logo-tagline {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    letter-spacing: 0.04em;
   }
   .nav { display: flex; flex-direction: column; gap: 2px; }
   .nav-label {
@@ -184,8 +190,7 @@
   }
   .card-body { padding: 18px; }
 
-  textarea {
-    width: 100%;
+  textarea, input[type="text"], input[type="email"], input[type="tel"] {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -194,11 +199,13 @@
     font-family: var(--font);
     font-size: 13px;
     line-height: 1.65;
-    resize: vertical;
     transition: border-color 0.12s, box-shadow 0.12s;
   }
-  textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-  textarea::placeholder { color: var(--text-dim); }
+  textarea { width: 100%; resize: vertical; }
+  textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+  textarea::placeholder, input::placeholder { color: var(--text-dim); }
 
   /* ---- MODE TOGGLE ---- */
   .mode-row {
@@ -278,7 +285,7 @@
   .file-remove:hover { color: var(--reject); }
 
   /* ---- SUBMIT ROW ---- */
-  .submit-row { display: flex; align-items: center; gap: 14px; }
+  .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .btn-analyze {
     display: flex;
     align-items: center;
@@ -540,6 +547,14 @@
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;
   }
+  .spinner-dark {
+    width: 14px; height: 14px;
+    border: 2px solid var(--surface3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---- NOTIFICATIONS ---- */
@@ -634,26 +649,46 @@
   .btn-enhance:hover:not(:disabled) { background: #7a22c9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(153,51,235,0.3); }
   .btn-enhance:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .enhanced-resume-box {
-    font-family: monospace;
-    font-size: 12px;
-    line-height: 1.75;
-    color: var(--text-body);
-    white-space: pre-wrap;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 18px;
-    max-height: 480px;
-    overflow-y: auto;
-    resize: vertical;
-  }
-  .enhance-action-row {
+  /* ---- GENERATE ---- */
+  .btn-generate {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
     align-items: center;
+    gap: 8px;
+    background: #007A5E;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 26px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.12s, box-shadow 0.12s;
+    letter-spacing: 0.02em;
   }
+  .btn-generate:hover:not(:disabled) { background: #006050; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,122,94,0.3); }
+  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ---- EMAIL BUTTON ---- */
+  .btn-email {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--eb-navy);
+    background: var(--eb-navy);
+    color: #fff;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .btn-email:hover { background: var(--accent); border-color: var(--accent); }
+  .btn-email:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---- SECONDARY BUTTON ---- */
   .btn-secondary {
     display: flex;
     align-items: center;
@@ -670,16 +705,222 @@
     transition: all 0.12s;
   }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  /* ---- EDITABLE RESUME BOX ---- */
+  .enhanced-resume-box, .editable-resume-box {
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--text-body);
+    white-space: pre-wrap;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    max-height: 480px;
+    overflow-y: auto;
+    resize: vertical;
+    outline: none;
+  }
+  .editable-resume-box:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  .enhance-action-row, .generate-action-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
   .enhance-changes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
-  .enhance-summary-block {
+  .enhance-summary-block, .generate-summary-block {
     margin-bottom: 12px;
     padding: 12px 16px;
-    background: rgba(153,51,235,0.06);
-    border: 1px solid rgba(153,51,235,0.2);
+    background: rgba(0,122,94,0.06);
+    border: 1px solid rgba(0,122,94,0.2);
     border-radius: 6px;
     font-size: 13px;
     color: var(--text-body);
     line-height: 1.6;
+  }
+  .enhance-summary-block {
+    background: rgba(153,51,235,0.06);
+    border-color: rgba(153,51,235,0.2);
+  }
+
+  /* ---- WORK ENTRY ---- */
+  .work-entries { display: flex; flex-direction: column; gap: 14px; }
+  .work-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .work-entry-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
+  .work-entry-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    grid-column: 1 / -2;
+  }
+  .work-entry input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .work-entry textarea {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+  .btn-remove-entry {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 5px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.12s;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .btn-remove-entry:hover { border-color: var(--reject); color: var(--reject); }
+  .btn-add-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px dashed var(--border-light);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .btn-add-entry:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  /* ---- CONTACT INFO GRID ---- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .contact-grid input { width: 100%; }
+  .field-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+  /* ---- EMAIL MODAL ---- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,17,102,0.4);
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: min(640px, 100%);
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,17,102,0.2);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .modal-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.12s;
+  }
+  .modal-close:hover { color: var(--text-body); }
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .email-subject {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+  }
+  .email-subject span { color: var(--text-body); font-weight: 700; }
+  .email-body-box {
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-body);
+    white-space: pre-wrap;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    min-height: 200px;
+    outline: none;
+    flex: 1;
+  }
+  .email-body-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .modal-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 20px;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 14px;
   }
 
   /* ---- SCROLLBAR ---- */
@@ -694,6 +935,7 @@
     .sidebar { position: static; height: auto; }
     .panel { padding: 20px; }
     .result-sections { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -708,14 +950,16 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
-      <div class="logo-eyebrow">Employbridge</div>
-      <div class="logo-name">Resume<br>Review</div>
+      <img src="employbridge-logo.png" alt="Employbridge" style="display:block;width:190px;margin-bottom:10px;" />
+      <div style="height:1px;background:var(--border);margin-bottom:10px;"></div>
+      <div class="logo-name">Bridge<br>Builder</div>
+      <div class="logo-tagline">All-in-one resume toolkit</div>
     </div>
 
     <nav class="nav">
-      <div class="nav-label">Workspace</div>
+      <div class="nav-label">Review</div>
       <button class="nav-btn active" onclick="showPanel('review')" id="nav-review">
-        <span class="ni">📋</span> New Review
+        <span class="ni">📋</span> Review Candidates
       </button>
       <button class="nav-btn" onclick="showPanel('results')" id="nav-results">
         <span class="ni">📊</span> Results
@@ -724,9 +968,13 @@
       <button class="nav-btn" onclick="showPanel('history')" id="nav-history">
         <span class="ni">🕑</span> History
       </button>
+
       <div class="nav-label" style="margin-top:14px;">Tools</div>
       <button class="nav-btn" onclick="showPanel('enhance')" id="nav-enhance">
         <span class="ni">✨</span> Enhance Resume
+      </button>
+      <button class="nav-btn" onclick="showPanel('generate')" id="nav-generate">
+        <span class="ni">🪄</span> Generate Resume
       </button>
     </nav>
 
@@ -738,8 +986,8 @@
     <!-- REVIEW PANEL -->
     <div class="panel active" id="panel-review">
       <div class="panel-header">
-        <div class="panel-title">New Review</div>
-        <div class="panel-sub">Paste a job description, add context, and upload resumes to analyze.</div>
+        <div class="panel-title">Review Candidates</div>
+        <div class="panel-sub">Paste a job description, add context, and upload resumes to analyze fit.</div>
       </div>
 
       <!-- JOB DESCRIPTION -->
@@ -806,8 +1054,8 @@
                 <button class="file-remove" onclick="clearSingleFile()">✕</button>
               </div>
               <div style="margin-top:10px;">
-                <div class="cf-label" style="margin-bottom:4px;">Candidate Name <span style="color:var(--text-dim)">(optional override)</span></div>
-                <input type="text" id="single-name" placeholder="Auto-detected from resume" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--font-mono);font-size:12px;width:100%;transition:border-color .12s;" />
+                <div class="field-label">Candidate Name <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0;">(optional override)</span></div>
+                <input type="text" id="single-name" placeholder="Auto-detected from resume" style="width:100%;" />
               </div>
             </div>
           </div>
@@ -858,7 +1106,7 @@
         <div class="empty-state" id="empty-results">
           <div class="empty-icon">🔍</div>
           <div class="empty-title">No results yet</div>
-          <div class="empty-sub">Run an analysis from the New Review panel to see candidate assessments here.</div>
+          <div class="empty-sub">Run an analysis from the Review Candidates panel to see assessments here.</div>
         </div>
       </div>
     </div>
@@ -951,8 +1199,8 @@
               <button class="file-remove" onclick="clearEnhanceFile()">✕</button>
             </div>
             <div style="margin-top:10px;">
-              <div style="margin-bottom:4px;font-size:12px;color:var(--text-muted);">Candidate Name <span style="color:var(--text-dim)">(optional override)</span></div>
-              <input type="text" id="enhance-name" placeholder="Auto-detected from resume" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;width:100%;transition:border-color .12s;" />
+              <div class="field-label">Candidate Name <span style="color:var(--text-dim);font-weight:400;text-transform:none;letter-spacing:0;">(optional override)</span></div>
+              <input type="text" id="enhance-name" placeholder="Auto-detected from resume" style="width:100%;" />
             </div>
           </div>
         </div>
@@ -995,16 +1243,162 @@
           <div class="card-header">
             <div class="card-title">
               📄 Enhanced Resume
+              <span class="card-badge">click to edit</span>
             </div>
             <div class="enhance-action-row">
+              <button class="btn-email" onclick="openEmailModal('enhance')">✉ Generate Email</button>
               <button class="btn-secondary" onclick="copyEnhancedResume()">📋 Copy</button>
-              <button class="btn-secondary" onclick="downloadEnhancedResume('txt')">⬇️ .txt</button>
-              <button class="btn-secondary" onclick="downloadEnhancedResume('pdf')">⬇️ .pdf</button>
-              <button class="btn-secondary" onclick="downloadEnhancedResume('docx')">⬇️ .docx</button>
+              <button class="btn-secondary" onclick="downloadResume('enhance','txt')">⬇️ .txt</button>
+              <button class="btn-secondary" onclick="downloadResume('enhance','pdf')">⬇️ .pdf</button>
+              <button class="btn-secondary" onclick="downloadResume('enhance','docx')">⬇️ .docx</button>
             </div>
           </div>
           <div class="card-body">
-            <div class="enhanced-resume-box" id="enh-resume-text"></div>
+            <div class="enhanced-resume-box" id="enh-resume-text" contenteditable="true"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GENERATE PANEL -->
+    <div class="panel" id="panel-generate">
+      <div class="panel-header">
+        <div class="panel-title">Generate Resume</div>
+        <div class="panel-sub">Enter a candidate's details and let AI build a fresh, modern resume from scratch — optionally tailored to a specific role.</div>
+      </div>
+
+      <!-- CANDIDATE INFO -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            👤 Candidate Information
+            <span class="card-badge">required</span>
+          </div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+          <div class="field-group">
+            <div class="field-label">Full Name</div>
+            <input type="text" id="gen-name" placeholder="e.g. Jane Smith" style="width:100%;" />
+          </div>
+          <div class="contact-grid">
+            <div class="field-group">
+              <div class="field-label">Email</div>
+              <input type="text" id="gen-email" placeholder="jane.smith@email.com" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">Phone</div>
+              <input type="text" id="gen-phone" placeholder="(555) 555-5555" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">Location</div>
+              <input type="text" id="gen-location" placeholder="City, State" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">LinkedIn / Portfolio</div>
+              <input type="text" id="gen-linkedin" placeholder="linkedin.com/in/janesmith" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORK EXPERIENCE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            💼 Work Experience
+            <span class="card-badge">required</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="work-entries" id="work-entries"></div>
+          <button class="btn-add-entry" onclick="addWorkEntry()">+ Add Position</button>
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🎓 Education
+            <span class="card-badge">optional</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="gen-education" rows="3" placeholder="e.g. B.S. Business Administration — State University, 2015&#10;Associate of Applied Science — Community College, 2013"></textarea>
+        </div>
+      </div>
+
+      <!-- SKILLS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            🛠️ Skills
+            <span class="card-badge">optional</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <textarea id="gen-skills" rows="2" placeholder="e.g. Project Management, Salesforce CRM, Microsoft Office, OSHA 10, Forklift Certified, Bilingual (English/Spanish)"></textarea>
+        </div>
+      </div>
+
+      <!-- JOB DESCRIPTION (tailoring) -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            📄 Target Job Description
+            <span class="card-badge">optional — for tailoring</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="jd-toolbar">
+            <select id="gen-jd-saved-select" onchange="loadSavedJobGenerate()">
+              <option value="">Load saved JD…</option>
+            </select>
+          </div>
+          <textarea id="gen-job-desc" rows="5" placeholder="Paste a job description to tailor the generated resume to a specific role. The AI will emphasize the most relevant experience and incorporate key requirements."></textarea>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-row">
+        <button class="btn-generate" id="generate-btn" onclick="runGeneration()">
+          <span id="gen-btn-icon">🪄</span>
+          <span id="gen-btn-label">Generate Resume</span>
+        </button>
+        <button class="btn-clear" onclick="clearGenerateForm()">Clear</button>
+        <span class="status-msg" id="gen-status-msg"></span>
+      </div>
+
+      <!-- OUTPUT -->
+      <div id="generate-output" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              ✅ Generation Summary
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="generate-summary-block" id="gen-summary"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              📄 Generated Resume
+              <span class="card-badge">click to edit</span>
+            </div>
+            <div class="generate-action-row">
+              <button class="btn-email" onclick="openEmailModal('generate')">✉ Generate Email</button>
+              <button class="btn-secondary" onclick="copyGeneratedResume()">📋 Copy</button>
+              <button class="btn-secondary" onclick="downloadResume('generate','txt')">⬇️ .txt</button>
+              <button class="btn-secondary" onclick="downloadResume('generate','pdf')">⬇️ .pdf</button>
+              <button class="btn-secondary" onclick="downloadResume('generate','docx')">⬇️ .docx</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="editable-resume-box" id="gen-resume-text" contenteditable="true"></div>
           </div>
         </div>
       </div>
@@ -1012,6 +1406,26 @@
     </div>
 
   </main>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal" onclick="handleModalOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✉ Generate Email</div>
+      <button class="modal-close" onclick="closeEmailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="email-modal-body">
+      <div class="modal-loading">
+        <div class="spinner-dark"></div>
+        Generating email…
+      </div>
+    </div>
+    <div class="modal-footer" id="email-modal-footer" style="display:none;">
+      <button class="btn-email" onclick="copyEmail()">📋 Copy Email</button>
+      <button class="btn-clear" onclick="closeEmailModal()">Close</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1025,8 +1439,11 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let config = {
   url: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/analyze',
   enhanceUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/enhance',
+  generateUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/generate',
+  emailUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/email',
   key: ''
 };
+
 // ============================================================
 //  AZURE TABLE STORAGE
 // ============================================================
@@ -1094,9 +1511,10 @@ async function initStorage() {
   ]);
   loadSavedJobs();
   loadSavedJobsEnhance();
+  loadSavedJobsGenerate();
 }
 
-// ── Saved Job Descriptions ──────────────────────────────────
+// -- Saved Job Descriptions --
 async function saveJobDescription() {
   const desc = document.getElementById('job-desc').value.trim();
   if (!desc) { showToast('Enter a job description first.', 'error'); return; }
@@ -1122,10 +1540,13 @@ async function saveJobDescription() {
 async function loadSavedJobs() {
   try {
     const rows = await AzureTable.query('SavedJobs', "PartitionKey eq 'jobs'");
-    const sel = document.getElementById('jd-saved-select');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">Load saved JD…</option>' +
-      rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title)}</option>`).join('');
+    const selectors = ['jd-saved-select', 'enh-jd-saved-select', 'gen-jd-saved-select'];
+    selectors.forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      sel.innerHTML = '<option value="">Load saved JD…</option>' +
+        rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title)}</option>`).join('');
+    });
   } catch(e) { /* silently ignore */ }
 }
 
@@ -1147,7 +1568,7 @@ async function loadSavedJob() {
   }
 }
 
-// ── Auto-save results ───────────────────────────────────────
+// -- Auto-save results --
 async function autoSaveResult(result, jobSnippet) {
   if (result.error) return;
   try {
@@ -1163,10 +1584,10 @@ async function autoSaveResult(result, jobSnippet) {
       ResultJson: JSON.stringify(result),
       CreatedAt: new Date().toISOString(),
     });
-  } catch(e) { /* best-effort — don't surface storage errors to user */ }
+  } catch(e) { /* best-effort */ }
 }
 
-// ── History panel ───────────────────────────────────────────
+// -- History panel --
 let historyRows = [];
 
 async function loadHistory() {
@@ -1300,10 +1721,9 @@ window.addEventListener('DOMContentLoaded', () => {
   setupDragDrop('single-drop', handleDropSingle);
   setupDragDrop('batch-drop', handleDropBatch);
   setupDragDrop('enhance-drop', handleDropEnhance);
+  addWorkEntry(); // start with one blank work entry
   initStorage();
 });
-
-// Config is baked in — no runtime configuration needed
 
 // ============================================================
 //  NAVIGATION
@@ -1315,6 +1735,7 @@ function showPanel(name) {
   document.getElementById('nav-' + name).classList.add('active');
   if (name === 'history') loadHistory();
   if (name === 'enhance') loadSavedJobsEnhance();
+  if (name === 'generate') loadSavedJobsGenerate();
 }
 
 // ============================================================
@@ -1434,14 +1855,13 @@ async function runAnalysis() {
   let queue = [];
   if (currentMode === 'single') {
     if (!singleFileData) { showToast('Please upload a resume file.', 'error'); return; }
-    const name = document.getElementById('single-name').value.trim() || inferName(singleFileData, 'single-file-display');
+    const name = document.getElementById('single-name').value.trim() || inferName(singleFileData);
     queue.push({ name, text: singleFileData });
   } else {
     if (batchFilesData.length === 0) { showToast('Please upload at least one resume file.', 'error'); return; }
     queue = batchFilesData.map(f => ({ name: inferNameFromFilename(f.name), text: f.data }));
   }
 
-  // UI: running state
   setRunning(true);
   showProgress(0, queue.length);
 
@@ -1453,6 +1873,8 @@ async function runAnalysis() {
       const result = await callProxy(jobDesc, positionNotes, queue[i].text, queue[i].name);
       result.candidateName = queue[i].name;
       result.fileName = currentMode === 'batch' ? batchFilesData[i]?.name : document.getElementById('single-fname').textContent;
+      result._jobDesc = jobDesc;
+      result._resumeText = queue[i].text;
       sessionResults.push(result);
       autoSaveResult(result, jobDesc);
     } catch (err) {
@@ -1465,7 +1887,6 @@ async function runAnalysis() {
     updateProgress(i + 1, queue.length, queue[i].name);
   }
 
-  // Merge into results array
   results = [...sessionResults, ...results];
   updateResultsCount();
   renderResults();
@@ -1514,7 +1935,7 @@ function renderResults() {
       <div class="empty-state">
         <div class="empty-icon">🔍</div>
         <div class="empty-title">No results yet</div>
-        <div class="empty-sub">Run an analysis from the New Review panel to see candidate assessments here.</div>
+        <div class="empty-sub">Run an analysis from the Review Candidates panel to see assessments here.</div>
       </div>`;
     return;
   }
@@ -1626,6 +2047,9 @@ function renderResultCard(r, i) {
           <div class="reasoning-label">AI Reasoning</div>
           ${escHtml(r.reasoning || '')}
         </div>
+        <div style="margin-top:14px;">
+          <button class="btn-email" onclick="openEmailModalForResult(${i})">✉ Generate Candidate Email</button>
+        </div>
       </div>
     </div>
   `;
@@ -1703,7 +2127,7 @@ function clearAll() {
   document.getElementById('batch-files').value = '';
 }
 
-function inferName(text, displayId) {
+function inferName(text) {
   const lines = (text || '').split('\n').slice(0, 5).map(l => l.trim()).filter(Boolean);
   return lines[0] || 'Candidate';
 }
@@ -1804,7 +2228,7 @@ async function runEnhancement() {
   const positionNotes = document.getElementById('enh-position-notes').value.trim();
   const interviewNotes = document.getElementById('enh-interview-notes').value.trim();
   const candidateName = document.getElementById('enhance-name').value.trim()
-    || inferName(enhanceFileData, 'enhance-file-display');
+    || inferName(enhanceFileData);
 
   setEnhanceRunning(true);
   document.getElementById('enh-status-msg').textContent = '';
@@ -1814,6 +2238,7 @@ async function runEnhancement() {
     const result = await callEnhanceProxy(jobDesc, positionNotes, interviewNotes, enhanceFileData, candidateName);
     enhancementResult = result;
     enhancementResult.candidateName = candidateName;
+    enhancementResult._jobDesc = jobDesc;
     renderEnhanceResult(result, candidateName);
     showToast('Resume enhanced successfully.', 'success');
   } catch(err) {
@@ -1854,22 +2279,18 @@ async function callEnhanceProxy(jobDescription, positionNotes, interviewNotes, r
 }
 
 function renderEnhanceResult(result, candidateName) {
-  // Summary block
   document.getElementById('enh-summary').textContent = result.summary || '';
 
-  // Changes list
   const changesList = document.getElementById('enh-changes-list');
   changesList.innerHTML = (result.changes || []).length > 0
     ? result.changes.map(c => `<div class="rs-item">${escHtml(c)}</div>`).join('')
     : '<div class="rs-empty">No specific changes noted.</div>';
 
-  // Alignments list
   const alignList = document.getElementById('enh-alignments-list');
   alignList.innerHTML = (result.keyAlignments || []).length > 0
     ? result.keyAlignments.map(a => `<div class="rs-item">${escHtml(a)}</div>`).join('')
     : '<div class="rs-empty">No alignments noted.</div>';
 
-  // Enhanced resume text
   document.getElementById('enh-resume-text').textContent = result.enhancedResume || '';
 
   document.getElementById('enhance-output').style.display = 'block';
@@ -1891,30 +2312,244 @@ function setEnhanceRunning(running) {
 }
 
 function copyEnhancedResume() {
-  if (!enhancementResult?.enhancedResume) return;
-  navigator.clipboard.writeText(enhancementResult.enhancedResume)
+  const text = document.getElementById('enh-resume-text').innerText;
+  if (!text) return;
+  navigator.clipboard.writeText(text)
     .then(() => showToast('Copied to clipboard.', 'success'))
     .catch(() => showToast('Copy failed — please select and copy manually.', 'error'));
 }
 
-function downloadEnhancedResume(format = 'txt') {
-  if (!enhancementResult?.enhancedResume) return;
-  if (format === 'pdf') { downloadEnhancedResumeAsPdf(); return; }
-  if (format === 'docx') { downloadEnhancedResumeAsDocx(); return; }
-  // txt
-  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
-  const blob = new Blob([enhancementResult.enhancedResume], { type: 'text/plain' });
+// ============================================================
+//  GENERATE FEATURE
+// ============================================================
+let workEntries = [];
+let generationResult = null;
+
+function addWorkEntry() {
+  const id = Date.now() + Math.random();
+  workEntries.push({ id });
+  renderWorkEntries();
+}
+
+function removeWorkEntry(id) {
+  workEntries = workEntries.filter(e => e.id !== id);
+  renderWorkEntries();
+}
+
+function renderWorkEntries() {
+  const container = document.getElementById('work-entries');
+  if (workEntries.length === 0) {
+    container.innerHTML = '<div class="rs-empty" style="padding:12px 0;">No positions added yet. Click "+ Add Position" below.</div>';
+    return;
+  }
+  container.innerHTML = workEntries.map((entry, idx) => `
+    <div class="work-entry" data-id="${entry.id}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+        <div class="field-label" style="margin:0;">Position ${idx + 1}</div>
+        <button class="btn-remove-entry" onclick="removeWorkEntry(${entry.id})" title="Remove this position">✕ Remove</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field-group">
+          <div class="field-label">Company</div>
+          <input type="text" class="we-company" placeholder="Company Name" style="width:100%;" />
+        </div>
+        <div class="field-group">
+          <div class="field-label">Job Title</div>
+          <input type="text" class="we-title" placeholder="e.g. Senior Recruiter" style="width:100%;" />
+        </div>
+        <div class="field-group">
+          <div class="field-label">Start Date</div>
+          <input type="text" class="we-start" placeholder="e.g. Jan 2020" style="width:100%;" />
+        </div>
+        <div class="field-group">
+          <div class="field-label">End Date</div>
+          <input type="text" class="we-end" placeholder="e.g. Mar 2024 or Present" style="width:100%;" />
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Key Responsibilities &amp; Accomplishments</div>
+        <textarea class="we-resp" rows="3" placeholder="Describe what this person did — the more detail, the better the resume. E.g. 'Managed full-cycle recruiting for manufacturing roles, hired 200+ candidates per year, reduced time-to-fill by 30%'"></textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function collectWorkHistory() {
+  const entries = document.querySelectorAll('#work-entries .work-entry');
+  return Array.from(entries).map(el => ({
+    company: el.querySelector('.we-company')?.value.trim() || '',
+    title: el.querySelector('.we-title')?.value.trim() || '',
+    startDate: el.querySelector('.we-start')?.value.trim() || '',
+    endDate: el.querySelector('.we-end')?.value.trim() || '',
+    responsibilities: el.querySelector('.we-resp')?.value.trim() || '',
+  })).filter(e => e.company || e.title);
+}
+
+async function loadSavedJobsGenerate() {
+  try {
+    const rows = await AzureTable.query('SavedJobs', "PartitionKey eq 'jobs'");
+    const sel = document.getElementById('gen-jd-saved-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Load saved JD…</option>' +
+      rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title)}</option>`).join('');
+  } catch(e) { /* silently ignore */ }
+}
+
+async function loadSavedJobGenerate() {
+  const sel = document.getElementById('gen-jd-saved-select');
+  const rowKey = sel.value;
+  if (!rowKey) return;
+  try {
+    const rows = await AzureTable.query('SavedJobs',
+      `PartitionKey eq 'jobs' and RowKey eq '${rowKey}'`);
+    if (!rows.length) return;
+    const r = rows[0];
+    document.getElementById('gen-job-desc').value = r.Description || '';
+    sel.value = '';
+    showToast(`Loaded: ${r.Title}`, 'success');
+  } catch(e) {
+    showToast('Load failed: ' + e.message, 'error');
+  }
+}
+
+async function runGeneration() {
+  const name = document.getElementById('gen-name').value.trim();
+  if (!name) { showToast('Please enter the candidate\'s name.', 'error'); return; }
+
+  const workHistory = collectWorkHistory();
+  if (workHistory.length === 0) { showToast('Please add at least one work position.', 'error'); return; }
+
+  const contactInfo = {
+    email: document.getElementById('gen-email').value.trim(),
+    phone: document.getElementById('gen-phone').value.trim(),
+    location: document.getElementById('gen-location').value.trim(),
+    linkedin: document.getElementById('gen-linkedin').value.trim(),
+  };
+  const education = document.getElementById('gen-education').value.trim();
+  const skills = document.getElementById('gen-skills').value.trim();
+  const jobDescription = document.getElementById('gen-job-desc').value.trim();
+
+  setGenerateRunning(true);
+  document.getElementById('gen-status-msg').textContent = '';
+  document.getElementById('generate-output').style.display = 'none';
+
+  try {
+    const result = await callGenerateProxy({ candidateName: name, contactInfo, workHistory, education, skills, jobDescription });
+    generationResult = result;
+    generationResult.candidateName = name;
+    generationResult._jobDesc = jobDescription;
+    renderGenerateResult(result);
+    showToast('Resume generated successfully.', 'success');
+  } catch(err) {
+    document.getElementById('gen-status-msg').textContent = err.message;
+    document.getElementById('gen-status-msg').className = 'status-msg error';
+    showToast('Generation failed: ' + err.message, 'error');
+  } finally {
+    setGenerateRunning(false);
+  }
+}
+
+async function callGenerateProxy(payload) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(config.generateUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-functions-key': config.key,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === 429) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 3000));
+        continue;
+      }
+      throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
+    }
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Server error ${response.status}: ${errBody}`);
+    }
+
+    return await response.json();
+  }
+}
+
+function renderGenerateResult(result) {
+  document.getElementById('gen-summary').textContent = result.summary || '';
+  document.getElementById('gen-resume-text').textContent = result.generatedResume || '';
+  document.getElementById('generate-output').style.display = 'block';
+  document.getElementById('generate-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setGenerateRunning(running) {
+  const btn = document.getElementById('generate-btn');
+  const icon = document.getElementById('gen-btn-icon');
+  const label = document.getElementById('gen-btn-label');
+  btn.disabled = running;
+  if (running) {
+    icon.outerHTML = '<span class="spinner" id="gen-btn-icon"></span>';
+    label.textContent = 'Generating...';
+  } else {
+    document.getElementById('gen-btn-icon').outerHTML = '<span id="gen-btn-icon">🪄</span>';
+    label.textContent = 'Generate Resume';
+  }
+}
+
+function clearGenerateForm() {
+  document.getElementById('gen-name').value = '';
+  document.getElementById('gen-email').value = '';
+  document.getElementById('gen-phone').value = '';
+  document.getElementById('gen-location').value = '';
+  document.getElementById('gen-linkedin').value = '';
+  document.getElementById('gen-education').value = '';
+  document.getElementById('gen-skills').value = '';
+  document.getElementById('gen-job-desc').value = '';
+  workEntries = [];
+  addWorkEntry();
+  document.getElementById('generate-output').style.display = 'none';
+  generationResult = null;
+}
+
+function copyGeneratedResume() {
+  const text = document.getElementById('gen-resume-text').innerText;
+  if (!text) return;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Copied to clipboard.', 'success'))
+    .catch(() => showToast('Copy failed — please select and copy manually.', 'error'));
+}
+
+// ============================================================
+//  SHARED DOWNLOAD (enhance + generate)
+// ============================================================
+function downloadResume(source, format) {
+  const elId = source === 'enhance' ? 'enh-resume-text' : 'gen-resume-text';
+  const candidateName = source === 'enhance'
+    ? (enhancementResult?.candidateName || 'candidate')
+    : (generationResult?.candidateName || 'candidate');
+  const text = document.getElementById(elId).innerText;
+  if (!text) return;
+
+  if (format === 'pdf') { downloadResumeAsPdf(text, candidateName, source); return; }
+  if (format === 'docx') { downloadResumeAsDocx(text, candidateName, source); return; }
+
+  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
+  const name = candidateName.replace(/\s+/g, '_');
+  const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${name}_enhanced_resume.txt`;
+  a.download = `${name}_${suffix}_resume.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-function downloadEnhancedResumeAsPdf() {
+function downloadResumeAsPdf(resumeText, candidateName, source) {
   const { jsPDF } = window.jspdf;
-  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
+  const name = candidateName.replace(/\s+/g, '_');
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 
   const margin = 50;
@@ -1927,15 +2562,14 @@ function downloadEnhancedResumeAsPdf() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
 
-  for (const para of enhancementResult.enhancedResume.split('\n')) {
+  for (const para of resumeText.split('\n')) {
     const trimmed = para.trim();
 
-    // All-caps section headers — bold, slightly larger
     if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
       if (y + lineHeight * 2 > pageHeight - margin) { doc.addPage(); y = margin; }
-      y += 6; // extra space before header
+      y += 6;
       doc.text(trimmed, margin, y);
       y += lineHeight + 2;
       doc.setFont('helvetica', 'normal');
@@ -1951,17 +2585,17 @@ function downloadEnhancedResumeAsPdf() {
     }
   }
 
-  doc.save(`${name}_enhanced_resume.pdf`);
+  doc.save(`${name}_${suffix}_resume.pdf`);
 }
 
-async function downloadEnhancedResumeAsDocx() {
-  const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
-  const name = (enhancementResult.candidateName || 'candidate').replace(/\s+/g, '_');
+async function downloadResumeAsDocx(resumeText, candidateName, source) {
+  const { Document, Packer, Paragraph, TextRun } = window.docx;
+  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
+  const name = candidateName.replace(/\s+/g, '_');
 
-  const paragraphs = enhancementResult.enhancedResume.split('\n').map(line => {
+  const paragraphs = resumeText.split('\n').map(line => {
     const trimmed = line.trim();
 
-    // All-caps section header
     if (trimmed && trimmed === trimmed.toUpperCase() && trimmed.length > 2 && !trimmed.startsWith('-')) {
       return new Paragraph({
         children: [new TextRun({ text: trimmed, bold: true, size: 26 })],
@@ -1970,7 +2604,6 @@ async function downloadEnhancedResumeAsDocx() {
       });
     }
 
-    // Bullet point (dash or bullet char)
     if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
       return new Paragraph({
         children: [new TextRun({ text: trimmed.replace(/^[-•]\s*/, ''), size: 22 })],
@@ -1979,12 +2612,10 @@ async function downloadEnhancedResumeAsDocx() {
       });
     }
 
-    // Empty line → small spacer
     if (!trimmed) {
       return new Paragraph({ children: [new TextRun('')], spacing: { after: 80 } });
     }
 
-    // Regular line
     return new Paragraph({
       children: [new TextRun({ text: line, size: 22 })],
       spacing: { after: 40 },
@@ -1992,19 +2623,128 @@ async function downloadEnhancedResumeAsDocx() {
   });
 
   const doc = new Document({
-    sections: [{
-      properties: {},
-      children: paragraphs,
-    }],
+    sections: [{ properties: {}, children: paragraphs }],
   });
 
   const blob = await Packer.toBlob(doc);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${name}_enhanced_resume.docx`;
+  a.download = `${name}_${suffix}_resume.docx`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ============================================================
+//  EMAIL GENERATION
+// ============================================================
+let _emailContext = null;
+
+function openEmailModalForResult(resultIndex) {
+  const r = results[resultIndex];
+  if (!r) return;
+  openEmailModal('result', {
+    candidateName: r.candidateName || 'the candidate',
+    role: (r._jobDesc || '').substring(0, 120),
+    resumeText: r._resumeText || '',
+    analysisContext: `Verdict: ${r.category} | Fit Score: ${r.fitScore ?? 'N/A'} | ${r.summary || ''}\n\nStrengths:\n${(r.strengths||[]).map(s=>'- '+s).join('\n')}\n\nConcerns:\n${(r.concerns||[]).map(s=>'- '+s).join('\n')}\n\nReasoning: ${r.reasoning || ''}`,
+  });
+}
+
+function openEmailModal(source, contextOverride) {
+  let context;
+
+  if (contextOverride) {
+    context = contextOverride;
+  } else if (source === 'enhance') {
+    if (!enhancementResult) return;
+    context = {
+      candidateName: enhancementResult.candidateName || 'the candidate',
+      role: (enhancementResult._jobDesc || '').substring(0, 120),
+      resumeText: document.getElementById('enh-resume-text').innerText,
+      analysisContext: `Enhancement summary: ${enhancementResult.summary || ''}\n\nKey alignments:\n${(enhancementResult.keyAlignments||[]).map(a=>'- '+a).join('\n')}`,
+    };
+  } else if (source === 'generate') {
+    if (!generationResult) return;
+    context = {
+      candidateName: generationResult.candidateName || 'the candidate',
+      role: (generationResult._jobDesc || '').substring(0, 120),
+      resumeText: document.getElementById('gen-resume-text').innerText,
+      analysisContext: `Generated resume summary: ${generationResult.summary || ''}`,
+    };
+  } else {
+    return;
+  }
+
+  _emailContext = context;
+
+  const modal = document.getElementById('email-modal');
+  const body = document.getElementById('email-modal-body');
+  const footer = document.getElementById('email-modal-footer');
+
+  body.innerHTML = '<div class="modal-loading"><div class="spinner-dark"></div>Generating email…</div>';
+  footer.style.display = 'none';
+  modal.classList.add('open');
+
+  callEmailProxy(context).then(result => {
+    body.innerHTML = `
+      <div class="email-subject">Subject: <span id="email-subject-text">${escHtml(result.subject || '')}</span></div>
+      <div class="email-body-box" id="email-body-text" contenteditable="true">${escHtml(result.body || '')}</div>
+    `;
+    footer.style.display = 'flex';
+  }).catch(err => {
+    body.innerHTML = `<div class="empty-state" style="padding:40px 20px;">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-title">Email generation failed</div>
+      <div class="empty-sub">${escHtml(err.message)}</div>
+    </div>`;
+    footer.style.display = 'flex';
+  });
+}
+
+async function callEmailProxy(context) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(config.emailUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-functions-key': config.key,
+      },
+      body: JSON.stringify(context),
+    });
+
+    if (response.status === 429) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 3000));
+        continue;
+      }
+      throw new Error('Rate limit exceeded — please wait a moment and try again.');
+    }
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Server error ${response.status}: ${errBody}`);
+    }
+
+    return await response.json();
+  }
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('open');
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('email-modal')) closeEmailModal();
+}
+
+function copyEmail() {
+  const subject = document.getElementById('email-subject-text')?.textContent || '';
+  const body = document.getElementById('email-body-text')?.innerText || '';
+  const full = subject ? `Subject: ${subject}\n\n${body}` : body;
+  navigator.clipboard.writeText(full)
+    .then(() => showToast('Email copied to clipboard.', 'success'))
+    .catch(() => showToast('Copy failed — please select and copy manually.', 'error'));
 }
 </script>
 </body>
