@@ -952,8 +952,8 @@
     <div class="logo">
       <img src="employbridge-logo.png" alt="Employbridge" style="display:block;width:190px;margin-bottom:10px;" />
       <div style="height:1px;background:var(--border);margin-bottom:10px;"></div>
-      <div class="logo-name">Bridge<br>Builder</div>
-      <div class="logo-tagline">All-in-one resume toolkit</div>
+      <div class="logo-name">BridgeBuilder</div>
+      <div class="logo-tagline">Powered by Employbridge</div>
     </div>
 
     <nav class="nav">
@@ -2366,13 +2366,29 @@ function copyEnhancedResume() {
 let workEntries = [];
 let generationResult = null;
 
+function saveWorkEntryValues() {
+  document.querySelectorAll('#work-entries .work-entry').forEach(el => {
+    const id = parseFloat(el.dataset.id);
+    const entry = workEntries.find(e => e.id === id);
+    if (entry) {
+      entry.company = el.querySelector('.we-company')?.value || '';
+      entry.title = el.querySelector('.we-title')?.value || '';
+      entry.startDate = el.querySelector('.we-start')?.value || '';
+      entry.endDate = el.querySelector('.we-end')?.value || '';
+      entry.responsibilities = el.querySelector('.we-resp')?.value || '';
+    }
+  });
+}
+
 function addWorkEntry() {
+  saveWorkEntryValues();
   const id = Date.now() + Math.random();
   workEntries.push({ id });
   renderWorkEntries();
 }
 
 function removeWorkEntry(id) {
+  saveWorkEntryValues();
   workEntries = workEntries.filter(e => e.id !== id);
   renderWorkEntries();
 }
@@ -2392,24 +2408,24 @@ function renderWorkEntries() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div class="field-group">
           <div class="field-label">Company</div>
-          <input type="text" class="we-company" placeholder="Company Name" style="width:100%;" />
+          <input type="text" class="we-company" placeholder="Company Name" style="width:100%;" value="${escHtml(entry.company || '')}" />
         </div>
         <div class="field-group">
           <div class="field-label">Job Title</div>
-          <input type="text" class="we-title" placeholder="e.g. Senior Recruiter" style="width:100%;" />
+          <input type="text" class="we-title" placeholder="e.g. Senior Recruiter" style="width:100%;" value="${escHtml(entry.title || '')}" />
         </div>
         <div class="field-group">
           <div class="field-label">Start Date</div>
-          <input type="text" class="we-start" placeholder="e.g. Jan 2020" style="width:100%;" />
+          <input type="text" class="we-start" placeholder="e.g. Jan 2020" style="width:100%;" value="${escHtml(entry.startDate || '')}" />
         </div>
         <div class="field-group">
           <div class="field-label">End Date</div>
-          <input type="text" class="we-end" placeholder="e.g. Mar 2024 or Present" style="width:100%;" />
+          <input type="text" class="we-end" placeholder="e.g. Mar 2024 or Present" style="width:100%;" value="${escHtml(entry.endDate || '')}" />
         </div>
       </div>
       <div class="field-group">
         <div class="field-label">Key Responsibilities &amp; Accomplishments</div>
-        <textarea class="we-resp" rows="3" placeholder="Describe what this person did — the more detail, the better the resume. E.g. 'Managed full-cycle recruiting for manufacturing roles, hired 200+ candidates per year, reduced time-to-fill by 30%'"></textarea>
+        <textarea class="we-resp" rows="3" placeholder="Describe what this person did — the more detail, the better the resume. E.g. 'Managed full-cycle recruiting for manufacturing roles, hired 200+ candidates per year, reduced time-to-fill by 30%'">${escHtml(entry.responsibilities || '')}</textarea>
       </div>
     </div>
   `).join('');
@@ -2577,20 +2593,18 @@ function downloadResume(source, format) {
   if (format === 'pdf') { downloadResumeAsPdf(text, candidateName, source); return; }
   if (format === 'docx') { downloadResumeAsDocx(text, candidateName, source); return; }
 
-  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
   const name = candidateName.replace(/\s+/g, '_');
   const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${name}_${suffix}_resume.txt`;
+  a.download = `${name}_Resume.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
 function downloadResumeAsPdf(resumeText, candidateName, source) {
   const { jsPDF } = window.jspdf;
-  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
   const name = candidateName.replace(/\s+/g, '_');
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 
@@ -2627,12 +2641,11 @@ function downloadResumeAsPdf(resumeText, candidateName, source) {
     }
   }
 
-  doc.save(`${name}_${suffix}_resume.pdf`);
+  doc.save(`${name}_Resume.pdf`);
 }
 
 async function downloadResumeAsDocx(resumeText, candidateName, source) {
   const { Document, Packer, Paragraph, TextRun } = window.docx;
-  const suffix = source === 'enhance' ? 'enhanced' : 'generated';
   const name = candidateName.replace(/\s+/g, '_');
 
   const paragraphs = resumeText.split('\n').map(line => {
@@ -2672,7 +2685,7 @@ async function downloadResumeAsDocx(resumeText, candidateName, source) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${name}_${suffix}_resume.docx`;
+  a.download = `${name}_Resume.docx`;
   a.click();
   URL.revokeObjectURL(url);
 }

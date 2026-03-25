@@ -57,10 +57,11 @@ Your resume should:
 - Sound authentic and specific to this individual — not generic
 
 Format rules:
-- Use ALL CAPS for section headers (e.g., PROFESSIONAL SUMMARY, WORK EXPERIENCE, EDUCATION, SKILLS)
+- Use ALL CAPS for section headers (e.g., PROFESSIONAL SUMMARY, WORK EXPERIENCE)
 - Use dashes (- ) for bullet points
 - Keep contact info on separate lines at the top
 - Do not invent facts — only use what is provided
+- Only include sections for data that was actually provided — if education or skills are not provided, omit those sections entirely. Do not add placeholder text or prompts to fill them in.
 
 Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
 {
