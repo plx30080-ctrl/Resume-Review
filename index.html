@@ -969,12 +969,20 @@
         <span class="ni">🕑</span> History
       </button>
 
-      <div class="nav-label" style="margin-top:14px;">Tools</div>
+      <div class="nav-label" style="margin-top:14px;">Enhance</div>
       <button class="nav-btn" onclick="showPanel('enhance')" id="nav-enhance">
         <span class="ni">✨</span> Enhance Resume
       </button>
+      <button class="nav-btn" onclick="showPanel('enhance-history')" id="nav-enhance-history">
+        <span class="ni">🕑</span> History
+      </button>
+
+      <div class="nav-label" style="margin-top:14px;">Generate</div>
       <button class="nav-btn" onclick="showPanel('generate')" id="nav-generate">
         <span class="ni">🪄</span> Generate Resume
+      </button>
+      <button class="nav-btn" onclick="showPanel('generate-history')" id="nav-generate-history">
+        <span class="ni">🕑</span> History
       </button>
     </nav>
 
@@ -1405,6 +1413,34 @@
 
     </div>
 
+    <!-- ENHANCE HISTORY PANEL -->
+    <div class="panel" id="panel-enhance-history">
+      <div class="panel-header">
+        <div class="panel-title">Enhance History</div>
+        <div class="panel-sub">All saved resume enhancements across sessions.</div>
+      </div>
+      <div id="enhance-history-content">
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <div class="empty-title">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE HISTORY PANEL -->
+    <div class="panel" id="panel-generate-history">
+      <div class="panel-header">
+        <div class="panel-title">Generate History</div>
+        <div class="panel-sub">All saved generated resumes across sessions.</div>
+      </div>
+      <div id="generate-history-content">
+        <div class="empty-state">
+          <div class="empty-icon">🪄</div>
+          <div class="empty-title">Loading…</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1508,6 +1544,8 @@ async function initStorage() {
   await Promise.all([
     AzureTable.createTable('SavedJobs'),
     AzureTable.createTable('Results'),
+    AzureTable.createTable('EnhanceHistory'),
+    AzureTable.createTable('GenerateHistory'),
   ]);
   loadSavedJobs();
   loadSavedJobsEnhance();
@@ -1736,6 +1774,8 @@ function showPanel(name) {
   if (name === 'history') loadHistory();
   if (name === 'enhance') loadSavedJobsEnhance();
   if (name === 'generate') loadSavedJobsGenerate();
+  if (name === 'enhance-history') loadEnhanceHistory();
+  if (name === 'generate-history') loadGenerateHistory();
 }
 
 // ============================================================
@@ -2240,6 +2280,7 @@ async function runEnhancement() {
     enhancementResult.candidateName = candidateName;
     enhancementResult._jobDesc = jobDesc;
     renderEnhanceResult(result, candidateName);
+    autoSaveEnhanceResult(result, candidateName, jobDesc);
     showToast('Resume enhanced successfully.', 'success');
   } catch(err) {
     document.getElementById('enh-status-msg').textContent = err.message;
@@ -2439,6 +2480,7 @@ async function runGeneration() {
     generationResult.candidateName = name;
     generationResult._jobDesc = jobDescription;
     renderGenerateResult(result);
+    autoSaveGenerateResult(result, name, jobDescription);
     showToast('Resume generated successfully.', 'success');
   } catch(err) {
     document.getElementById('gen-status-msg').textContent = err.message;
@@ -2633,6 +2675,233 @@ async function downloadResumeAsDocx(resumeText, candidateName, source) {
   a.download = `${name}_${suffix}_resume.docx`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ============================================================
+//  ENHANCE HISTORY
+// ============================================================
+async function autoSaveEnhanceResult(result, candidateName, jobDesc) {
+  try {
+    await AzureTable.insert('EnhanceHistory', {
+      PartitionKey: 'enhance',
+      RowKey: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+      CandidateName: candidateName || 'Unknown',
+      JobSnippet: (jobDesc || '').substring(0, 120),
+      Summary: (result.summary || '').substring(0, 500),
+      ResultJson: JSON.stringify(result),
+      CreatedAt: new Date().toISOString(),
+    });
+  } catch(e) { /* best-effort */ }
+}
+
+let enhanceHistoryRows = [];
+
+async function loadEnhanceHistory() {
+  const container = document.getElementById('enhance-history-content');
+  container.innerHTML = '<div class="loading-msg">Loading…</div>';
+  try {
+    enhanceHistoryRows = await AzureTable.query('EnhanceHistory');
+    renderEnhanceHistory();
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>
+      <div class="empty-title">Could not load history</div>
+      <div class="empty-sub">${escHtml(e.message)}</div></div>`;
+  }
+}
+
+function renderEnhanceHistory() {
+  const container = document.getElementById('enhance-history-content');
+  if (!enhanceHistoryRows.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✨</div>
+      <div class="empty-title">No enhancements yet</div>
+      <div class="empty-sub">Enhanced resumes are automatically saved here after each run.</div></div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="results-toolbar" style="margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text-muted)">${enhanceHistoryRows.length} saved enhancement${enhanceHistoryRows.length !== 1 ? 's' : ''}</span>
+      <button class="filter-btn" onclick="clearEnhanceHistory()" style="margin-left:auto;">Clear All</button>
+    </div>
+    <div class="results-grid">
+      ${enhanceHistoryRows.map(r => renderEnhanceHistoryCard(r)).join('')}
+    </div>`;
+}
+
+function renderEnhanceHistoryCard(r) {
+  const uid = 'eh-' + r.RowKey;
+  const date = r.CreatedAt
+    ? new Date(r.CreatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+  let result = {};
+  try { result = JSON.parse(r.ResultJson || '{}'); } catch(e) {}
+
+  return `
+    <div class="result-card" id="${uid}" style="border-color:rgba(153,51,235,0.3);">
+      <div class="result-header" onclick="toggleResult('${uid}')">
+        <div class="result-left">
+          <span class="verdict-badge" style="background:rgba(153,51,235,0.08);color:#7a22c9;border:1px solid rgba(153,51,235,0.3);">✨ Enhanced</span>
+          <div style="flex:1;min-width:0;">
+            <div class="result-name">${escHtml(r.CandidateName || 'Unknown')}</div>
+            <div class="result-summary">${escHtml(r.JobSnippet || '')}
+              <span style="color:var(--text-dim);font-size:11px;margin-left:6px;">${date}</span></div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <button class="file-remove" onclick="event.stopPropagation();deleteEnhanceHistoryRow('${escHtml(r.RowKey)}')">✕</button>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="result-body" id="body-${uid}">
+        ${r.Summary ? `<div class="reasoning-block" style="margin-top:16px;"><div class="reasoning-label">Summary</div>${escHtml(r.Summary)}</div>` : ''}
+        ${(result.changes || []).length ? `
+        <div class="result-sections" style="margin-top:14px;">
+          <div class="result-section">
+            <div class="rs-title">Changes Made</div>
+            <div class="rs-list">${result.changes.map(c => `<div class="rs-item">${escHtml(c)}</div>`).join('')}</div>
+          </div>
+          <div class="result-section">
+            <div class="rs-title">Key Alignments</div>
+            <div class="rs-list">${(result.keyAlignments || []).map(a => `<div class="rs-item">${escHtml(a)}</div>`).join('')}</div>
+          </div>
+        </div>` : ''}
+        ${result.enhancedResume ? `
+        <div style="margin-top:14px;">
+          <div class="rs-title" style="margin-bottom:8px;">Enhanced Resume</div>
+          <div class="enhanced-resume-box" style="max-height:300px;">${escHtml(result.enhancedResume)}</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function deleteEnhanceHistoryRow(rowKey) {
+  if (!confirm('Delete this enhancement from history?')) return;
+  try {
+    await AzureTable.remove('EnhanceHistory', 'enhance', rowKey);
+    enhanceHistoryRows = enhanceHistoryRows.filter(r => r.RowKey !== rowKey);
+    renderEnhanceHistory();
+  } catch(e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+async function clearEnhanceHistory() {
+  if (!confirm('Delete all enhance history? This cannot be undone.')) return;
+  try {
+    await Promise.all(enhanceHistoryRows.map(r => AzureTable.remove('EnhanceHistory', 'enhance', r.RowKey)));
+    enhanceHistoryRows = [];
+    renderEnhanceHistory();
+    showToast('Enhance history cleared.', 'success');
+  } catch(e) {
+    showToast('Clear failed: ' + e.message, 'error');
+  }
+}
+
+// ============================================================
+//  GENERATE HISTORY
+// ============================================================
+async function autoSaveGenerateResult(result, candidateName, jobDesc) {
+  try {
+    await AzureTable.insert('GenerateHistory', {
+      PartitionKey: 'generate',
+      RowKey: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+      CandidateName: candidateName || 'Unknown',
+      JobSnippet: (jobDesc || '').substring(0, 120),
+      Summary: (result.summary || '').substring(0, 500),
+      ResultJson: JSON.stringify(result),
+      CreatedAt: new Date().toISOString(),
+    });
+  } catch(e) { /* best-effort */ }
+}
+
+let generateHistoryRows = [];
+
+async function loadGenerateHistory() {
+  const container = document.getElementById('generate-history-content');
+  container.innerHTML = '<div class="loading-msg">Loading…</div>';
+  try {
+    generateHistoryRows = await AzureTable.query('GenerateHistory');
+    renderGenerateHistory();
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>
+      <div class="empty-title">Could not load history</div>
+      <div class="empty-sub">${escHtml(e.message)}</div></div>`;
+  }
+}
+
+function renderGenerateHistory() {
+  const container = document.getElementById('generate-history-content');
+  if (!generateHistoryRows.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🪄</div>
+      <div class="empty-title">No generated resumes yet</div>
+      <div class="empty-sub">Generated resumes are automatically saved here after each run.</div></div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="results-toolbar" style="margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text-muted)">${generateHistoryRows.length} saved resume${generateHistoryRows.length !== 1 ? 's' : ''}</span>
+      <button class="filter-btn" onclick="clearGenerateHistory()" style="margin-left:auto;">Clear All</button>
+    </div>
+    <div class="results-grid">
+      ${generateHistoryRows.map(r => renderGenerateHistoryCard(r)).join('')}
+    </div>`;
+}
+
+function renderGenerateHistoryCard(r) {
+  const uid = 'gh-' + r.RowKey;
+  const date = r.CreatedAt
+    ? new Date(r.CreatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+  let result = {};
+  try { result = JSON.parse(r.ResultJson || '{}'); } catch(e) {}
+
+  return `
+    <div class="result-card" id="${uid}" style="border-color:rgba(0,122,94,0.3);">
+      <div class="result-header" onclick="toggleResult('${uid}')">
+        <div class="result-left">
+          <span class="verdict-badge" style="background:rgba(0,122,94,0.08);color:#007A5E;border:1px solid rgba(0,122,94,0.3);">🪄 Generated</span>
+          <div style="flex:1;min-width:0;">
+            <div class="result-name">${escHtml(r.CandidateName || 'Unknown')}</div>
+            <div class="result-summary">${escHtml(r.JobSnippet || '')}
+              <span style="color:var(--text-dim);font-size:11px;margin-left:6px;">${date}</span></div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <button class="file-remove" onclick="event.stopPropagation();deleteGenerateHistoryRow('${escHtml(r.RowKey)}')">✕</button>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="result-body" id="body-${uid}">
+        ${r.Summary ? `<div class="reasoning-block" style="margin-top:16px;"><div class="reasoning-label">Summary</div>${escHtml(r.Summary)}</div>` : ''}
+        ${result.generatedResume ? `
+        <div style="margin-top:14px;">
+          <div class="rs-title" style="margin-bottom:8px;">Generated Resume</div>
+          <div class="editable-resume-box" style="max-height:300px;">${escHtml(result.generatedResume)}</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function deleteGenerateHistoryRow(rowKey) {
+  if (!confirm('Delete this generated resume from history?')) return;
+  try {
+    await AzureTable.remove('GenerateHistory', 'generate', rowKey);
+    generateHistoryRows = generateHistoryRows.filter(r => r.RowKey !== rowKey);
+    renderGenerateHistory();
+  } catch(e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+async function clearGenerateHistory() {
+  if (!confirm('Delete all generate history? This cannot be undone.')) return;
+  try {
+    await Promise.all(generateHistoryRows.map(r => AzureTable.remove('GenerateHistory', 'generate', r.RowKey)));
+    generateHistoryRows = [];
+    renderGenerateHistory();
+    showToast('Generate history cleared.', 'success');
+  } catch(e) {
+    showToast('Clear failed: ' + e.message, 'error');
+  }
 }
 
 // ============================================================
