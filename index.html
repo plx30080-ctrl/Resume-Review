@@ -937,6 +937,173 @@
     .result-sections { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; }
   }
+
+  /* ---- INTERVIEW GUIDE ---- */
+  .btn-interview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #B45309;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 26px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.12s, box-shadow 0.12s;
+    letter-spacing: 0.02em;
+  }
+  .btn-interview:hover:not(:disabled) {
+    background: #92400E;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(180,83,9,0.3);
+  }
+  .btn-interview:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .interview-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .interview-step {
+    flex: 1;
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .interview-step:last-child { border-right: none; }
+  .interview-step.active { background: var(--accent-dim); color: var(--accent); }
+  .interview-step.done { background: rgba(0,238,187,0.08); color: var(--viable); }
+
+  .interview-category {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,17,102,0.06);
+  }
+  .interview-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .interview-category-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .interview-category-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 8px;
+  }
+
+  .interview-question-row { border-bottom: 1px solid var(--border); }
+  .interview-question-row:last-child { border-bottom: none; }
+
+  .interview-q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .interview-q-header:hover { background: var(--accent-dim); }
+  .interview-q-num { font-size: 11px; font-weight: 700; color: var(--text-dim); min-width: 24px; padding-top: 1px; }
+  .interview-q-text { flex: 1; font-size: 13px; color: var(--text-body); line-height: 1.55; }
+  .interview-q-chevron { color: var(--text-dim); font-size: 11px; transition: transform 0.15s; flex-shrink: 0; padding-top: 2px; }
+  .interview-q-chevron.open { transform: rotate(180deg); }
+
+  .interview-q-body { display: none; padding: 0 18px 18px 54px; flex-direction: column; gap: 12px; }
+  .interview-q-body.open { display: flex; }
+
+  .interview-notes-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .interview-notes-area {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text-body);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.6;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    box-sizing: border-box;
+  }
+  .interview-notes-area:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .interview-notes-area::placeholder { color: var(--text-dim); }
+
+  .followup-section { display: flex; flex-direction: column; gap: 8px; }
+  .followup-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .followup-list { display: flex; flex-direction: column; gap: 6px; }
+  .followup-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-body);
+    line-height: 1.55;
+  }
+  .followup-item::before { content: "↳"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  .btn-followup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-body);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+    align-self: flex-start;
+  }
+  .btn-followup:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .btn-followup:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .recommendation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .recommendation-badge.advance { background: var(--viable-dim); color: var(--viable); border: 1px solid var(--viable-border); }
+  .recommendation-badge.hold { background: var(--review-dim); color: var(--review); border: 1px solid var(--review-border); }
+  .recommendation-badge.decline { background: var(--reject-dim); color: var(--reject); border: 1px solid var(--reject-border); }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -982,6 +1149,14 @@
         <span class="ni">🪄</span> Generate Resume
       </button>
       <button class="nav-btn" onclick="showPanel('generate-history')" id="nav-generate-history">
+        <span class="ni">🕑</span> History
+      </button>
+
+      <div class="nav-label" style="margin-top:14px;">Interview</div>
+      <button class="nav-btn" onclick="showPanel('interview')" id="nav-interview">
+        <span class="ni">🎙️</span> Interview Guide
+      </button>
+      <button class="nav-btn" onclick="showPanel('interview-history')" id="nav-interview-history">
         <span class="ni">🕑</span> History
       </button>
     </nav>
@@ -1441,6 +1616,160 @@
       </div>
     </div>
 
+    <!-- INTERVIEW GUIDE PANEL -->
+    <div class="panel" id="panel-interview">
+      <div class="panel-header">
+        <div class="panel-title">Interview Guide</div>
+        <div class="panel-sub">Upload a resume and job description to generate structured interview questions. Take notes inline, get AI follow-ups per question, and wrap up with a fit summary.</div>
+      </div>
+
+      <div class="interview-steps">
+        <div class="interview-step active" id="step-1">Step 1 — Inputs</div>
+        <div class="interview-step" id="step-2">Step 2 — Interview</div>
+        <div class="interview-step" id="step-3">Step 3 — Wrap-Up</div>
+      </div>
+
+      <!-- STEP 1: INPUTS -->
+      <div id="interview-step1">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📄 Job Description <span class="card-badge">required</span></div>
+          </div>
+          <div class="card-body">
+            <div class="jd-toolbar">
+              <select id="int-jd-saved-select" onchange="loadSavedJobInterview()">
+                <option value="">Load saved JD…</option>
+              </select>
+            </div>
+            <textarea id="int-job-desc" rows="6" placeholder="Paste the full job description here — the more detail, the more targeted the questions."></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👤 Candidate Resume <span class="card-badge">required</span></div>
+          </div>
+          <div class="card-body">
+            <div class="file-drop" id="interview-drop">
+              <input type="file" id="interview-file" accept=".txt,.pdf,.doc,.docx" onchange="handleInterviewFile(event)" />
+              <div class="drop-icon">📎</div>
+              <div class="drop-text"><strong>Click to upload</strong> or drag and drop</div>
+              <div class="drop-hint">Supported: .txt, .pdf, .doc, .docx</div>
+            </div>
+            <div id="interview-file-display" style="display:none; margin-top:12px;">
+              <div class="file-item">
+                <span class="file-icon">📄</span>
+                <span class="file-name" id="interview-fname"></span>
+                <span class="file-size" id="interview-fsize"></span>
+                <button class="file-remove" onclick="clearInterviewFile()">✕</button>
+              </div>
+              <div style="margin-top:10px;">
+                <div class="field-label">Candidate Name</div>
+                <input type="text" id="interview-name" placeholder="Auto-detected from resume" style="width:100%;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <button class="btn-interview" id="interview-gen-btn" onclick="runGenerateQuestions()">
+            <span id="int-gen-icon">🎙️</span>
+            <span id="int-gen-label">Generate Interview Questions</span>
+          </button>
+          <button class="btn-clear" onclick="clearInterviewForm()">Clear</button>
+          <span class="status-msg" id="int-status-msg"></span>
+        </div>
+
+      </div><!-- end #interview-step1 -->
+
+      <!-- STEP 2: INTERVIEW QUESTIONS -->
+      <div id="interview-step2" style="display:none;">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Interview: <span id="int-candidate-name-display"></span></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Expand each question to take notes. Use "Get Follow-ups" for deeper probing.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="expandAllQuestions()">Expand All</button>
+            <button class="btn-secondary" onclick="collapseAllQuestions()">Collapse All</button>
+            <button class="btn-clear" onclick="resetToStep1()">← Back to Inputs</button>
+          </div>
+        </div>
+
+        <div id="interview-questions-container" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+        <div style="margin-top:20px;">
+          <div class="submit-row">
+            <button class="btn-interview" id="wrapup-btn" onclick="runWrapUp()">
+              <span id="wrapup-icon">📋</span>
+              <span id="wrapup-label">Wrap Up Interview</span>
+            </button>
+            <span class="status-msg" id="wrapup-status-msg"></span>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">Generates a candidate fit summary based on all your notes. You can add notes first or wrap up at any time.</div>
+        </div>
+
+      </div><!-- end #interview-step2 -->
+
+      <!-- STEP 3: WRAP-UP SUMMARY -->
+      <div id="interview-step3" style="display:none;">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);">Interview Summary</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="goBackToStep2()">← Back to Questions</button>
+            <button class="btn-secondary" onclick="saveInterviewSession()">💾 Save to History</button>
+          </div>
+        </div>
+
+        <div class="card" id="wrapup-output-card">
+          <div class="card-header" style="justify-content:space-between;">
+            <div class="card-title">🏁 Candidate Fit Assessment</div>
+            <div id="wrapup-recommendation-badge"></div>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="reasoning-block" id="wrapup-fit-assessment"></div>
+            <div class="result-sections">
+              <div class="result-section">
+                <div class="rs-title">Key Strengths</div>
+                <div class="rs-list" id="wrapup-strengths-list"></div>
+              </div>
+              <div class="result-section">
+                <div class="rs-title">Key Risks / Gaps</div>
+                <div class="rs-list" id="wrapup-risks-list"></div>
+              </div>
+            </div>
+            <div>
+              <div class="reasoning-label" style="margin-bottom:6px;">Recommendation Rationale</div>
+              <div class="reasoning-block" id="wrapup-rationale"></div>
+            </div>
+            <div>
+              <div class="reasoning-label" style="margin-bottom:6px;">Detailed Recruiter Notes</div>
+              <div class="reasoning-block" id="wrapup-overall-notes"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end #interview-step3 -->
+
+    </div><!-- end #panel-interview -->
+
+    <!-- INTERVIEW HISTORY PANEL -->
+    <div class="panel" id="panel-interview-history">
+      <div class="panel-header">
+        <div class="panel-title">Interview History</div>
+        <div class="panel-sub">All saved interview sessions and summaries across sessions.</div>
+      </div>
+      <div id="interview-history-content">
+        <div class="empty-state">
+          <div class="empty-icon">🎙️</div>
+          <div class="empty-title">Loading…</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1477,6 +1806,7 @@ let config = {
   enhanceUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/enhance',
   generateUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/generate',
   emailUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/email',
+  interviewUrl: 'https://resume-review-fn-bydkf6hrgvaadwcj.centralus-01.azurewebsites.net/api/interview',
   key: ''
 };
 
@@ -1546,6 +1876,7 @@ async function initStorage() {
     AzureTable.createTable('Results'),
     AzureTable.createTable('EnhanceHistory'),
     AzureTable.createTable('GenerateHistory'),
+    AzureTable.createTable('InterviewHistory'),
   ]);
   loadSavedJobs();
   loadSavedJobsEnhance();
@@ -1759,6 +2090,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupDragDrop('single-drop', handleDropSingle);
   setupDragDrop('batch-drop', handleDropBatch);
   setupDragDrop('enhance-drop', handleDropEnhance);
+  setupDragDrop('interview-drop', handleDropInterview);
   addWorkEntry(); // start with one blank work entry
   initStorage();
 });
@@ -1776,6 +2108,8 @@ function showPanel(name) {
   if (name === 'generate') loadSavedJobsGenerate();
   if (name === 'enhance-history') loadEnhanceHistory();
   if (name === 'generate-history') loadGenerateHistory();
+  if (name === 'interview') loadSavedJobsInterview();
+  if (name === 'interview-history') loadInterviewHistory();
 }
 
 // ============================================================
@@ -2912,6 +3246,514 @@ async function clearGenerateHistory() {
     generateHistoryRows = [];
     renderGenerateHistory();
     showToast('Generate history cleared.', 'success');
+  } catch(e) {
+    showToast('Clear failed: ' + e.message, 'error');
+  }
+}
+
+// ============================================================
+//  INTERVIEW GUIDE
+// ============================================================
+let interviewFileData = null;
+let interviewResumeText = '';
+let interviewJobDesc = '';
+let interviewCandidateName = '';
+let interviewCategories = [];
+let interviewNotes = {};
+let interviewWrapUpResult = null;
+let interviewHistoryRows = [];
+
+// -- File handling --
+function handleInterviewFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  processFile(f).then(data => { interviewFileData = data; showInterviewFile(f); });
+}
+
+function handleDropInterview(files) {
+  if (files.length > 0) processFile(files[0]).then(data => { interviewFileData = data; showInterviewFile(files[0]); });
+}
+
+function showInterviewFile(file) {
+  document.getElementById('interview-file-display').style.display = 'block';
+  document.getElementById('interview-fname').textContent = file.name;
+  document.getElementById('interview-fsize').textContent = formatSize(file.size);
+}
+
+function clearInterviewFile() {
+  interviewFileData = null;
+  document.getElementById('interview-file-display').style.display = 'none';
+  document.getElementById('interview-file').value = '';
+  document.getElementById('interview-name').value = '';
+}
+
+// -- Saved JD dropdown --
+async function loadSavedJobsInterview() {
+  try {
+    const rows = await AzureTable.query('SavedJobs', "PartitionKey eq 'jobs'");
+    const sel = document.getElementById('int-jd-saved-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Load saved JD…</option>' +
+      rows.map(r => `<option value="${escHtml(r.RowKey)}">${escHtml(r.Title || r.RowKey)}</option>`).join('');
+  } catch(e) {}
+}
+
+async function loadSavedJobInterview() {
+  const sel = document.getElementById('int-jd-saved-select');
+  const rowKey = sel.value;
+  if (!rowKey) return;
+  try {
+    const rows = await AzureTable.query('SavedJobs', `PartitionKey eq 'jobs' and RowKey eq '${rowKey}'`);
+    if (!rows.length) return;
+    document.getElementById('int-job-desc').value = rows[0].Description || '';
+    sel.value = '';
+    showToast(`Loaded: ${rows[0].Title || rowKey}`, 'success');
+  } catch(e) {
+    showToast('Load failed: ' + e.message, 'error');
+  }
+}
+
+// -- Step navigation --
+function transitionToStep(stepNumber) {
+  [1, 2, 3].forEach(n => {
+    document.getElementById('interview-step' + n).style.display = n === stepNumber ? 'block' : 'none';
+    const stepEl = document.getElementById('step-' + n);
+    stepEl.classList.remove('active', 'done');
+    if (n < stepNumber) stepEl.classList.add('done');
+    else if (n === stepNumber) stepEl.classList.add('active');
+  });
+}
+
+function resetToStep1() { transitionToStep(1); }
+function goBackToStep2() { transitionToStep(2); }
+
+// -- Generate questions --
+async function runGenerateQuestions() {
+  const jobDesc = document.getElementById('int-job-desc').value.trim();
+  if (!jobDesc) { showToast('Please enter a job description.', 'error'); return; }
+  if (!interviewFileData) { showToast('Please upload a resume file.', 'error'); return; }
+
+  const candidateName = document.getElementById('interview-name').value.trim() || inferName(interviewFileData);
+
+  setInterviewGenRunning(true);
+  document.getElementById('int-status-msg').textContent = '';
+
+  try {
+    const result = await callInterviewProxy({ mode: 'generateQuestions', resumeText: interviewFileData, jobDescription: jobDesc });
+
+    interviewCategories = result.categories || [];
+    interviewJobDesc = jobDesc;
+    interviewResumeText = interviewFileData;
+    interviewCandidateName = candidateName;
+    interviewNotes = {};
+    interviewWrapUpResult = null;
+
+    interviewCategories.forEach(cat => {
+      (cat.questions || []).forEach(q => {
+        interviewNotes[q.id] = { notes: '', followUps: [] };
+      });
+    });
+
+    document.getElementById('int-candidate-name-display').textContent = candidateName;
+    transitionToStep(2);
+    renderInterviewQuestions();
+    showToast('Questions generated. Begin your interview!', 'success');
+  } catch(err) {
+    const msg = document.getElementById('int-status-msg');
+    msg.textContent = err.message;
+    msg.className = 'status-msg error';
+    showToast('Failed: ' + err.message, 'error');
+  } finally {
+    setInterviewGenRunning(false);
+  }
+}
+
+function setInterviewGenRunning(running) {
+  const btn = document.getElementById('interview-gen-btn');
+  btn.disabled = running;
+  document.getElementById('int-gen-icon').outerHTML = running
+    ? '<span class="spinner" id="int-gen-icon"></span>'
+    : '<span id="int-gen-icon">🎙️</span>';
+  document.getElementById('int-gen-label').textContent = running ? 'Generating Questions…' : 'Generate Interview Questions';
+}
+
+// -- Render questions --
+function syncSingleNote(qId) {
+  if (!interviewNotes[qId]) interviewNotes[qId] = { notes: '', followUps: [] };
+  const el = document.getElementById('notes-' + qId);
+  if (el) interviewNotes[qId].notes = el.value;
+}
+
+function syncNotesFromDom() {
+  Object.keys(interviewNotes).forEach(qId => {
+    const el = document.getElementById('notes-' + qId);
+    if (el) interviewNotes[qId].notes = el.value;
+  });
+}
+
+function renderInterviewQuestions() {
+  syncNotesFromDom();
+  const container = document.getElementById('interview-questions-container');
+  let html = '';
+
+  interviewCategories.forEach((cat, catIdx) => {
+    if (!cat.questions || cat.questions.length === 0) return;
+    html += `
+      <div class="interview-category">
+        <div class="interview-category-header">
+          <div class="interview-category-title">
+            ${escHtml(cat.category)}
+            <span class="interview-category-desc">— ${escHtml(cat.description || '')}</span>
+          </div>
+        </div>
+        <div class="interview-category-body">`;
+
+    cat.questions.forEach((q, qIdx) => {
+      const qId = q.id;
+      const noteState = interviewNotes[qId] || { notes: '', followUps: [] };
+      const rowId = 'qrow-' + qId;
+      const escapedQ = escHtml(q.question).replace(/'/g, '&#39;');
+
+      html += `
+        <div class="interview-question-row" id="${rowId}">
+          <div class="interview-q-header" onclick="toggleQuestion('${rowId}')">
+            <span class="interview-q-num">${qIdx + 1}.</span>
+            <span class="interview-q-text">${escHtml(q.question)}</span>
+            <span class="interview-q-chevron" id="qchev-${rowId}">▼</span>
+          </div>
+          <div class="interview-q-body" id="qbody-${rowId}">
+            <div>
+              <div class="interview-notes-label">Recruiter Notes</div>
+              <textarea class="interview-notes-area" id="notes-${qId}"
+                placeholder="Type notes on what the candidate said…"
+                oninput="syncSingleNote('${qId}')">${escHtml(noteState.notes)}</textarea>
+            </div>
+            <div class="followup-section" id="followup-section-${qId}">
+              ${renderFollowUpSection(qId, noteState.followUps, escapedQ)}
+            </div>
+          </div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderFollowUpSection(qId, followUps, escapedQ) {
+  return `
+    ${followUps.length > 0 ? `
+      <div class="followup-label">Follow-up Questions</div>
+      <div class="followup-list">
+        ${followUps.map(fu => `<div class="followup-item">${escHtml(fu)}</div>`).join('')}
+      </div>` : ''}
+    <button class="btn-followup" id="followup-btn-${qId}"
+      onclick="runGetFollowUps('${qId}', '${escapedQ}')">
+      <span id="followup-icon-${qId}">💡</span>
+      ${followUps.length > 0 ? 'Refresh Follow-ups' : 'Get Follow-ups'}
+    </button>`;
+}
+
+function toggleQuestion(rowId) {
+  document.getElementById('qbody-' + rowId).classList.toggle('open');
+  document.getElementById('qchev-' + rowId).classList.toggle('open');
+}
+
+function expandAllQuestions() {
+  document.querySelectorAll('.interview-q-body').forEach(el => el.classList.add('open'));
+  document.querySelectorAll('.interview-q-chevron').forEach(el => el.classList.add('open'));
+}
+
+function collapseAllQuestions() {
+  document.querySelectorAll('.interview-q-body').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.interview-q-chevron').forEach(el => el.classList.remove('open'));
+}
+
+// -- Follow-up questions --
+async function runGetFollowUps(qId, originalQuestion) {
+  syncSingleNote(qId);
+  const notes = (interviewNotes[qId] || {}).notes || '';
+  if (!notes.trim()) { showToast('Add some interview notes first, then get follow-ups.', 'error'); return; }
+
+  const btn = document.getElementById('followup-btn-' + qId);
+  if (btn) btn.disabled = true;
+  const iconEl = document.getElementById('followup-icon-' + qId);
+  if (iconEl) iconEl.outerHTML = `<span class="spinner-dark" id="followup-icon-${qId}"></span>`;
+
+  try {
+    const result = await callInterviewProxy({
+      mode: 'generateFollowUps',
+      originalQuestion,
+      recruiterNotes: notes,
+      resumeText: interviewResumeText.substring(0, 3000),
+      jobDescription: interviewJobDesc.substring(0, 1000),
+    });
+
+    const followUps = result.followUps || [];
+    if (!interviewNotes[qId]) interviewNotes[qId] = { notes: '', followUps: [] };
+    interviewNotes[qId].followUps = followUps;
+
+    const section = document.getElementById('followup-section-' + qId);
+    if (section) {
+      section.innerHTML = renderFollowUpSection(qId, followUps, originalQuestion.replace(/'/g, '&#39;'));
+    }
+    showToast('Follow-up questions generated.', 'success');
+  } catch(err) {
+    showToast('Follow-up failed: ' + err.message, 'error');
+    const btn2 = document.getElementById('followup-btn-' + qId);
+    if (btn2) btn2.disabled = false;
+    const icon2 = document.getElementById('followup-icon-' + qId);
+    if (icon2) icon2.outerHTML = `<span id="followup-icon-${qId}">💡</span>`;
+  }
+}
+
+// -- Wrap up --
+async function runWrapUp() {
+  syncNotesFromDom();
+
+  const questionsAndNotes = [];
+  interviewCategories.forEach(cat => {
+    (cat.questions || []).forEach(q => {
+      questionsAndNotes.push({
+        category: cat.category,
+        question: q.question,
+        notes: (interviewNotes[q.id] || {}).notes || '',
+      });
+    });
+  });
+
+  if (questionsAndNotes.length === 0) { showToast('No questions to summarize.', 'error'); return; }
+
+  setWrapUpRunning(true);
+  document.getElementById('wrapup-status-msg').textContent = '';
+
+  try {
+    const result = await callInterviewProxy({
+      mode: 'wrapUp',
+      questionsAndNotes,
+      resumeText: interviewResumeText.substring(0, 2000),
+      jobDescription: interviewJobDesc.substring(0, 800),
+    });
+
+    interviewWrapUpResult = result;
+    renderWrapUpSummary(result);
+    transitionToStep(3);
+    showToast('Interview wrapped up. Review the summary below.', 'success');
+  } catch(err) {
+    const msg = document.getElementById('wrapup-status-msg');
+    msg.textContent = err.message;
+    msg.className = 'status-msg error';
+    showToast('Wrap-up failed: ' + err.message, 'error');
+  } finally {
+    setWrapUpRunning(false);
+  }
+}
+
+function setWrapUpRunning(running) {
+  const btn = document.getElementById('wrapup-btn');
+  btn.disabled = running;
+  document.getElementById('wrapup-icon').outerHTML = running
+    ? '<span class="spinner" id="wrapup-icon"></span>'
+    : '<span id="wrapup-icon">📋</span>';
+  document.getElementById('wrapup-label').textContent = running ? 'Wrapping Up…' : 'Wrap Up Interview';
+}
+
+function renderWrapUpSummary(result) {
+  const rec = (result.hiringRecommendation || '').toUpperCase();
+  const recClass = rec === 'ADVANCE' ? 'advance' : rec === 'HOLD' ? 'hold' : 'decline';
+  const recLabel = rec === 'ADVANCE' ? '✓ Advance' : rec === 'HOLD' ? '⚠ Hold' : '✕ Decline';
+
+  document.getElementById('wrapup-recommendation-badge').innerHTML =
+    `<span class="recommendation-badge ${recClass}">${recLabel}</span>`;
+  document.getElementById('wrapup-fit-assessment').textContent = result.fitAssessment || '';
+  document.getElementById('wrapup-strengths-list').innerHTML =
+    (result.keyStrengths || []).map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('') ||
+    '<div class="rs-empty">None noted</div>';
+  document.getElementById('wrapup-risks-list').innerHTML =
+    (result.keyRisks || []).map(r => `<div class="rs-item">${escHtml(r)}</div>`).join('') ||
+    '<div class="rs-empty">None noted</div>';
+  document.getElementById('wrapup-rationale').textContent = result.recommendationRationale || '';
+  document.getElementById('wrapup-overall-notes').textContent = result.overallNotes || '';
+}
+
+// -- Proxy call --
+async function callInterviewProxy(payload) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(config.interviewUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-functions-key': config.key,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === 429) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 3000));
+        continue;
+      }
+      throw new Error('Rate limit exceeded — please wait a moment and retry.');
+    }
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`Server error ${response.status}: ${errBody}`);
+    }
+
+    return await response.json();
+  }
+}
+
+// -- Clear form --
+function clearInterviewForm() {
+  document.getElementById('int-job-desc').value = '';
+  clearInterviewFile();
+  interviewCategories = [];
+  interviewNotes = {};
+  interviewWrapUpResult = null;
+  interviewResumeText = '';
+  interviewJobDesc = '';
+  interviewCandidateName = '';
+  document.getElementById('int-status-msg').textContent = '';
+  transitionToStep(1);
+}
+
+// -- Save to history --
+async function saveInterviewSession() {
+  if (!interviewWrapUpResult) { showToast('Complete the wrap-up first before saving.', 'error'); return; }
+  try {
+    await AzureTable.insert('InterviewHistory', {
+      PartitionKey: 'interviews',
+      RowKey: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+      CandidateName: interviewCandidateName || 'Unknown',
+      JobSnippet: interviewJobDesc.substring(0, 120),
+      Recommendation: interviewWrapUpResult.hiringRecommendation || '',
+      FitAssessment: (interviewWrapUpResult.fitAssessment || '').substring(0, 500),
+      SessionJson: JSON.stringify({
+        candidateName: interviewCandidateName,
+        jobDesc: interviewJobDesc.substring(0, 300),
+        categories: interviewCategories,
+        notes: interviewNotes,
+        wrapUp: interviewWrapUpResult,
+      }),
+      CreatedAt: new Date().toISOString(),
+    });
+    showToast('Interview session saved to history.', 'success');
+  } catch(e) {
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+// -- History --
+async function loadInterviewHistory() {
+  const container = document.getElementById('interview-history-content');
+  container.innerHTML = '<div class="loading-msg" style="padding:20px;color:var(--text-muted);">Loading…</div>';
+  try {
+    interviewHistoryRows = await AzureTable.query('InterviewHistory');
+    renderInterviewHistory();
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>
+      <div class="empty-title">Could not load history</div>
+      <div class="empty-sub">${escHtml(e.message)}</div></div>`;
+  }
+}
+
+function renderInterviewHistory() {
+  const container = document.getElementById('interview-history-content');
+  if (!interviewHistoryRows.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🎙️</div>
+      <div class="empty-title">No interviews saved yet</div>
+      <div class="empty-sub">Save an interview session after wrapping up to see it here.</div></div>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="results-toolbar" style="margin-bottom:12px;">
+      <span style="font-size:13px;color:var(--text-muted);">
+        ${interviewHistoryRows.length} saved session${interviewHistoryRows.length !== 1 ? 's' : ''}
+      </span>
+      <button class="filter-btn" onclick="clearInterviewHistory()" style="margin-left:auto;">Clear All</button>
+    </div>
+    <div class="results-grid">
+      ${interviewHistoryRows.map(r => renderInterviewHistoryCard(r)).join('')}
+    </div>`;
+}
+
+function renderInterviewHistoryCard(r) {
+  const uid = 'ih-' + r.RowKey;
+  const date = r.CreatedAt
+    ? new Date(r.CreatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+  const rec = (r.Recommendation || '').toUpperCase();
+  const recClass = rec === 'ADVANCE' ? 'viable' : rec === 'HOLD' ? 'review' : rec === 'DECLINE' ? 'reject' : '';
+  const recLabel = rec === 'ADVANCE' ? '✓ Advance' : rec === 'HOLD' ? '⚠ Hold' : rec === 'DECLINE' ? '✕ Decline' : rec;
+
+  let session = {};
+  try { session = JSON.parse(r.SessionJson || '{}'); } catch(e) {}
+  const wrapUp = session.wrapUp || {};
+
+  return `
+    <div class="result-card ${recClass}" id="${uid}">
+      <div class="result-header" onclick="toggleResult('${uid}')">
+        <div class="result-left">
+          <span class="verdict-badge ${recClass}">${recLabel}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="result-name">${escHtml(r.CandidateName || 'Unknown')}</div>
+            <div class="result-summary">${escHtml(r.JobSnippet || '')}
+              <span style="color:var(--text-dim);font-size:11px;margin-left:6px;">${date}</span>
+            </div>
+          </div>
+        </div>
+        <div class="result-meta">
+          <button class="file-remove" style="margin-left:8px;"
+            onclick="event.stopPropagation();deleteInterviewHistoryRow('${escHtml(r.RowKey)}')">✕</button>
+          <span class="chevron" id="chev-${uid}">▼</span>
+        </div>
+      </div>
+      <div class="result-body" id="body-${uid}">
+        ${r.FitAssessment ? `
+          <div class="reasoning-block" style="margin-top:16px;">
+            <div class="reasoning-label">Fit Assessment</div>
+            ${escHtml(r.FitAssessment)}
+          </div>` : ''}
+        ${(wrapUp.keyStrengths || []).length || (wrapUp.keyRisks || []).length ? `
+          <div class="result-sections" style="margin-top:14px;">
+            <div class="result-section">
+              <div class="rs-title">Key Strengths</div>
+              <div class="rs-list">
+                ${(wrapUp.keyStrengths || []).map(s => `<div class="rs-item">${escHtml(s)}</div>`).join('')}
+              </div>
+            </div>
+            <div class="result-section">
+              <div class="rs-title">Key Risks</div>
+              <div class="rs-list">
+                ${(wrapUp.keyRisks || []).map(risk => `<div class="rs-item">${escHtml(risk)}</div>`).join('')}
+              </div>
+            </div>
+          </div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function deleteInterviewHistoryRow(rowKey) {
+  if (!confirm('Delete this interview session from history?')) return;
+  try {
+    await AzureTable.remove('InterviewHistory', 'interviews', rowKey);
+    interviewHistoryRows = interviewHistoryRows.filter(r => r.RowKey !== rowKey);
+    renderInterviewHistory();
+  } catch(e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+async function clearInterviewHistory() {
+  if (!confirm('Delete all interview history? This cannot be undone.')) return;
+  try {
+    await Promise.all(interviewHistoryRows.map(r => AzureTable.remove('InterviewHistory', 'interviews', r.RowKey)));
+    interviewHistoryRows = [];
+    renderInterviewHistory();
+    showToast('Interview history cleared.', 'success');
   } catch(e) {
     showToast('Clear failed: ' + e.message, 'error');
   }
