@@ -2289,6 +2289,14 @@ async function callProxy(jobDescription, positionNotes, resumeText, candidateNam
       throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
     }
 
+    if (response.status >= 500) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 2000));
+        continue;
+      }
+      throw new Error('The server encountered an error — please try again.');
+    }
+
     if (!response.ok) {
       const errBody = await response.text();
       throw new Error(`Server error ${response.status}: ${errBody}`);
@@ -2644,6 +2652,14 @@ async function callEnhanceProxy(jobDescription, positionNotes, interviewNotes, r
       throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
     }
 
+    if (response.status >= 500) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 2000));
+        continue;
+      }
+      throw new Error('The server encountered an error — please try again.');
+    }
+
     if (!response.ok) {
       const errBody = await response.text();
       throw new Error(`Server error ${response.status}: ${errBody}`);
@@ -2858,6 +2874,14 @@ async function callGenerateProxy(payload) {
         continue;
       }
       throw new Error('Rate limit exceeded — too many requests. Please wait a moment and retry.');
+    }
+
+    if (response.status >= 500) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 2000));
+        continue;
+      }
+      throw new Error('The server encountered an error — please try again.');
     }
 
     if (!response.ok) {
@@ -3595,6 +3619,14 @@ async function callInterviewProxy(payload) {
         continue;
       }
       throw new Error('Rate limit exceeded — please wait a moment and retry.');
+    }
+
+    if (response.status >= 500) {
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, attempt * 2000));
+        continue;
+      }
+      throw new Error('The server encountered an error — please try again.');
     }
 
     if (!response.ok) {
